@@ -290,9 +290,12 @@
             <select name="Property Type" class="inp" required><option value="" disabled selected>Select…</option><option value="Apartment">Apartment</option><option value="Condo">Condo</option><option value="House">House</option></select>
           </div>
             </div>
-            <button type="submit" class="btn-predict" id="pBtn">
-              <span id="btnTxt">Predict</span>
-            </button>
+            <div style="display:flex;gap:10px">
+              <button type="submit" class="btn-predict" id="pBtn" style="flex:1">
+                <span id="btnTxt">Predict</span>
+              </button>
+              <button type="button" id="clearBtn" onclick="clearAllFields()" style="padding:15px 20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:12px;color:rgba(255,255,255,.6);font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">Clear</button>
+            </div>
           </form>
 
           <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)">
@@ -746,6 +749,20 @@
     }).join('');
   }
   function clearHistory(){ _history=[]; document.getElementById('histSection').style.display='none'; }
+
+  function clearAllFields() {
+    pForm.querySelectorAll('input.inp, select.inp').forEach(function(el) {
+      if (el.tagName === 'SELECT') { el.selectedIndex = 0; }
+      else { el.value = ''; }
+      el.style.borderColor = '';
+    });
+    pForm.querySelectorAll('.range-err').forEach(function(e){ e.remove(); });
+    pForm.querySelectorAll('input[type="range"]').forEach(function(sl){ sl.value = sl.min; });
+    emptyState.style.display  = 'flex';
+    resultState.style.display = 'none';
+    errState.style.display    = 'none';
+    btnTxt.textContent = 'Predict';
+  }
 </script>
 </body>
 </html>
