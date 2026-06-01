@@ -167,6 +167,18 @@
     .hist-table .pred-col { color:#fff; font-weight:700; }
     .hist-table .run-col  { color:rgba(255,255,255,.25); }
 
+    .pill-group { display:flex; flex-wrap:wrap; gap:6px; margin-top:2px; }
+    .pill {
+      padding:5px 12px; border-radius:99px; font-size:.8rem; font-weight:500; cursor:pointer;
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.13);
+      color:rgba(255,255,255,.55); transition:all .15s; user-select:none;
+    }
+    .pill:hover { background:rgba(255,255,255,.11); color:rgba(255,255,255,.85); }
+    .pill.selected {
+      background:rgba(41,121,255,.25); border-color:#2979ff;
+      color:#fff; font-weight:600;
+    }
+
     @media (max-width: 768px) {
       #mainGrid { grid-template-columns: 1fr !important; }
       .hero-h1  { font-size: 2rem !important; }
@@ -254,39 +266,66 @@
           </div>
           <div>
             <label class="inp-lbl">Gender</label>
-            <select name="Gender" class="inp" required><option value="" disabled selected>Select…</option><option value="Female">Female</option><option value="Male">Male</option></select>
+            <input type="hidden" name="Gender" class="inp cat-inp">
+            <div class="pill-group" data-for="Gender">
+              <span class="pill" data-val="Female">Female</span><span class="pill" data-val="Male">Male</span>
+            </div>
           </div>
           <div>
             <label class="inp-lbl">Marital Status</label>
-            <select name="Marital Status" class="inp" required><option value="" disabled selected>Select…</option><option value="Divorced">Divorced</option><option value="Married">Married</option><option value="Single">Single</option></select>
+            <input type="hidden" name="Marital Status" class="inp cat-inp">
+            <div class="pill-group" data-for="Marital Status">
+              <span class="pill" data-val="Divorced">Divorced</span><span class="pill" data-val="Married">Married</span><span class="pill" data-val="Single">Single</span>
+            </div>
           </div>
           <div>
             <label class="inp-lbl">Education Level</label>
-            <select name="Education Level" class="inp" required><option value="" disabled selected>Select…</option><option value="Bachelor's">Bachelor's</option><option value="High School">High School</option><option value="Master's">Master's</option><option value="PhD">PhD</option></select>
+            <input type="hidden" name="Education Level" class="inp cat-inp">
+            <div class="pill-group" data-for="Education Level">
+              <span class="pill" data-val="Bachelor's">Bachelor's</span><span class="pill" data-val="High School">High School</span><span class="pill" data-val="Master's">Master's</span><span class="pill" data-val="PhD">PhD</span>
+            </div>
           </div>
           <div>
             <label class="inp-lbl">Occupation</label>
-            <select name="Occupation" class="inp" required><option value="" disabled selected>Select…</option><option value="Employed">Employed</option><option value="Self-Employed">Self-Employed</option><option value="Unemployed">Unemployed</option></select>
+            <input type="hidden" name="Occupation" class="inp cat-inp">
+            <div class="pill-group" data-for="Occupation">
+              <span class="pill" data-val="Employed">Employed</span><span class="pill" data-val="Self-Employed">Self-Employed</span><span class="pill" data-val="Unemployed">Unemployed</span>
+            </div>
           </div>
           <div>
             <label class="inp-lbl">Location</label>
-            <select name="Location" class="inp" required><option value="" disabled selected>Select…</option><option value="Rural">Rural</option><option value="Suburban">Suburban</option><option value="Urban">Urban</option></select>
+            <input type="hidden" name="Location" class="inp cat-inp">
+            <div class="pill-group" data-for="Location">
+              <span class="pill" data-val="Rural">Rural</span><span class="pill" data-val="Suburban">Suburban</span><span class="pill" data-val="Urban">Urban</span>
+            </div>
           </div>
           <div>
             <label class="inp-lbl">Policy Type</label>
-            <select name="Policy Type" class="inp" required><option value="" disabled selected>Select…</option><option value="Basic">Basic</option><option value="Comprehensive">Comprehensive</option><option value="Premium">Premium</option></select>
+            <input type="hidden" name="Policy Type" class="inp cat-inp">
+            <div class="pill-group" data-for="Policy Type">
+              <span class="pill" data-val="Basic">Basic</span><span class="pill" data-val="Comprehensive">Comprehensive</span><span class="pill" data-val="Premium">Premium</span>
+            </div>
           </div>
           <div>
             <label class="inp-lbl">Smoking Status</label>
-            <select name="Smoking Status" class="inp" required><option value="" disabled selected>Select…</option><option value="No">No</option><option value="Yes">Yes</option></select>
+            <input type="hidden" name="Smoking Status" class="inp cat-inp">
+            <div class="pill-group" data-for="Smoking Status">
+              <span class="pill" data-val="No">No</span><span class="pill" data-val="Yes">Yes</span>
+            </div>
           </div>
           <div>
             <label class="inp-lbl">Exercise Frequency</label>
-            <select name="Exercise Frequency" class="inp" required><option value="" disabled selected>Select…</option><option value="Daily">Daily</option><option value="Monthly">Monthly</option><option value="Rarely">Rarely</option><option value="Weekly">Weekly</option></select>
+            <input type="hidden" name="Exercise Frequency" class="inp cat-inp">
+            <div class="pill-group" data-for="Exercise Frequency">
+              <span class="pill" data-val="Daily">Daily</span><span class="pill" data-val="Monthly">Monthly</span><span class="pill" data-val="Rarely">Rarely</span><span class="pill" data-val="Weekly">Weekly</span>
+            </div>
           </div>
           <div>
             <label class="inp-lbl">Property Type</label>
-            <select name="Property Type" class="inp" required><option value="" disabled selected>Select…</option><option value="Apartment">Apartment</option><option value="Condo">Condo</option><option value="House">House</option></select>
+            <input type="hidden" name="Property Type" class="inp cat-inp">
+            <div class="pill-group" data-for="Property Type">
+              <span class="pill" data-val="Apartment">Apartment</span><span class="pill" data-val="Condo">Condo</span><span class="pill" data-val="House">House</span>
+            </div>
           </div>
             </div>
             <div style="display:flex;gap:10px">
@@ -515,7 +554,7 @@
     var payload = {};
     var summary = [];
     var _hasInvalid = false;
-    pForm.querySelectorAll('input.inp, select.inp').forEach(function(el) {
+    pForm.querySelectorAll('input.inp').forEach(function(el) {
       var v = el.value.trim();
       if (v !== '') {
         payload[el.name] = (el.type === 'number' && !isNaN(v)) ? parseFloat(v) : v;
@@ -705,8 +744,21 @@
       }
     });
   }
+  // ── Pill selectors (categorical) ──────────────────────────
+  document.querySelectorAll('.pill-group').forEach(function(group) {
+    var fieldName = group.getAttribute('data-for');
+    var hiddenInp = pForm.querySelector('input[name="' + fieldName + '"].cat-inp');
+    group.querySelectorAll('.pill').forEach(function(pill) {
+      pill.addEventListener('click', function() {
+        group.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('selected'); });
+        pill.classList.add('selected');
+        if (hiddenInp) hiddenInp.value = pill.getAttribute('data-val');
+      });
+    });
+  });
+
   var _rangeData = {};
-  fetch('/ranges').then(function(r){return r.json();})
+  fetch('/ranges').then(function(r){return r.json();})"
     .then(function(rng){ _rangeData = rng || {}; initSliders(_rangeData); initValidation(); })
     .catch(function(){ initSliders(null); initValidation(); });
 
@@ -718,9 +770,10 @@
       inp.addEventListener('blur', function() {
         var r = _rangeData[inp.name]; if (!r) return;
         var v = parseFloat(inp.value);
-        if (inp.value !== '' && (isNaN(v) || v < r.min || v > r.max)) {
+        var hasMax = r.max !== null && r.max !== undefined;
+        if (inp.value !== '' && (isNaN(v) || v < r.min || (hasMax && v > r.max))) {
           inp.style.borderColor = '#f87171';
-          errEl.textContent = 'Expected ' + r.min + ' – ' + r.max;
+          errEl.textContent = hasMax ? ('Expected ' + r.min + ' – ' + r.max) : ('Minimum ' + r.min);
           errEl.style.display = 'block';
           inp.dataset.invalid = '1';
         } else {
@@ -770,13 +823,13 @@
   function clearHistory(){ _history=[]; document.getElementById('histSection').style.display='none'; }
 
   function clearAllFields() {
-    pForm.querySelectorAll('input.inp, select.inp').forEach(function(el) {
-      if (el.tagName === 'SELECT') { el.selectedIndex = 0; }
-      else { el.value = ''; }
+    pForm.querySelectorAll('input.inp').forEach(function(el) {
+      el.value = '';
       el.style.borderColor = '';
     });
     pForm.querySelectorAll('.range-err').forEach(function(e){ e.remove(); });
     pForm.querySelectorAll('input[type="range"]').forEach(function(sl){ sl.value = sl.min; });
+    pForm.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('selected'); });
     emptyState.style.display  = 'flex';
     resultState.style.display = 'none';
     errState.style.display    = 'none';
