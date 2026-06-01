@@ -1,5 +1,6 @@
 {
   "task": "regression",
+  "algorithm": "XGBoost",
   "r2": -0.0455,
   "mae": 690.9,
   "rmse": 912.31,

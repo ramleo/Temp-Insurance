@@ -67,6 +67,34 @@
     body.light #resVal           { color: #1e293b !important; }
     body.light #resConf          { color: #475569 !important; }
     body.light #resLabel         { color: #2979ff !important; }
+    /* Result panel and glass card text — light mode */
+    /* Section label dimmed text (e.g. "Confidence Interval", "Key Factors") */
+    body.light [style*='color:rgba(255,255,255,.28)'] { color:#64748b !important; }
+    body.light [style*='color:rgba(255,255,255,.25)'] { color:#94a3b8 !important; }
+    body.light [style*='color:rgba(255,255,255,.38)'] { color:#64748b !important; }
+    body.light [style*='color:rgba(255,255,255,.45)'] { color:#64748b !important; }
+    body.light [style*='color:rgba(255,255,255,.5);']  { color:#475569 !important; }
+    body.light [style*='color:rgba(255,255,255,.22)'] { color:#94a3b8 !important; }
+    body.light [style*='color:rgba(255,255,255,.3)']  { color:#94a3b8 !important; }
+    /* Glass inner section containers */
+    body.light [style*='background:rgba(255,255,255,.04)'] {
+      background:rgba(0,0,0,.04) !important; border-color:rgba(0,0,0,.1) !important;
+    }
+    /* CI track bar */
+    body.light [style*='background:rgba(255,255,255,.06)'] { background:rgba(0,0,0,.08) !important; }
+    /* CI range values */
+    body.light #ciLower, body.light #ciUpper { color:#334155 !important; }
+    /* Empty state icon box */
+    body.light #emptyState [style*='rgba(255,255,255,.04)'] {
+      background:rgba(0,0,0,.05) !important; border-color:rgba(0,0,0,.12) !important;
+    }
+    /* Upload area */
+    body.light #batchResult { background:rgba(0,0,0,.03) !important; border-color:rgba(0,0,0,.08) !important; color:#475569 !important; }
+    body.light #uploadTxt { color:rgba(0,0,0,.45) !important; }
+    body.light .badge span { color:#2979ff !important; }
+    /* Footer */
+    body.light footer span, body.light p [style*='color:rgba(255,255,255,.35)'] { color:#94a3b8 !important; }
+    body.light p [style*='color:rgba(255,255,255,.18)'] { color:#94a3b8 !important; }
 
     /* hero in light mode */
     body.light .hero {
@@ -249,6 +277,34 @@
     .hist-table .pred-col { color:#fff; font-weight:700; }
     .hist-table .run-col  { color:rgba(255,255,255,.25); }
 
+    .fi-row { margin-bottom:7px; }
+    .fi-label-row { display:flex; justify-content:space-between; font-size:.76rem; margin-bottom:3px; }
+    .fi-lbl { color:rgba(255,255,255,.6); }
+    .fi-pct { color:rgba(255,255,255,.4); }
+    .fi-track { height:5px; background:rgba(255,255,255,.08); border-radius:99px; }
+    .fi-fill  { height:5px; border-radius:99px; background:linear-gradient(90deg,#1565c0,#2979ff); }
+    body.light .fi-lbl   { color:#334155 !important; }
+    body.light .fi-pct   { color:#64748b !important; }
+    body.light .fi-track { background:rgba(0,0,0,.08) !important; }
+
+    .tip-wrap { position:relative; display:inline-flex; align-items:center; margin-left:6px; }
+    .tip-icon {
+      cursor:help; color:rgba(255,255,255,.35); font-size:.65rem; font-weight:700;
+      border:1px solid rgba(255,255,255,.22); border-radius:50%;
+      width:14px; height:14px; display:inline-flex; align-items:center; justify-content:center;
+      flex-shrink:0; user-select:none;
+    }
+    .tip-box {
+      display:none; position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+      background:rgba(15,25,45,.95); border:1px solid rgba(255,255,255,.12); border-radius:8px;
+      padding:8px 12px; color:rgba(255,255,255,.82); font-size:.74rem; font-weight:400;
+      text-transform:none; letter-spacing:0; white-space:nowrap; z-index:99;
+      box-shadow:0 4px 16px rgba(0,0,0,.5);
+    }
+    .tip-wrap:hover .tip-box { display:block; }
+    body.light .tip-icon { color:rgba(0,0,0,.4); border-color:rgba(0,0,0,.2); }
+    body.light .tip-box  { background:rgba(255,255,255,.97); border-color:rgba(0,0,0,.12); color:#334155; box-shadow:0 4px 16px rgba(0,0,0,.15); }
+
     @media (max-width: 768px) {
       #mainGrid { grid-template-columns: 1fr !important; }
       .hero-h1  { font-size: 2rem !important; }
@@ -395,7 +451,7 @@
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
               <div class="mini-stat">
                 <div style="color:rgba(255,255,255,.35);font-size:.7rem;margin-bottom:4px">Algorithm</div>
-                <div style="color:#fff;font-weight:600;font-size:.82rem">—</div>
+                <div style="color:#fff;font-weight:600;font-size:.82rem" id="algoValue">—</div>
               </div>
               <div class="mini-stat">
                 <div style="color:rgba(255,255,255,.35);font-size:.7rem;margin-bottom:4px" id="metricLabel">R² / MAE</div>
@@ -439,7 +495,7 @@
 
             <div id="benchmarkBadge" style="display:none;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:99px;margin-bottom:12px"></div>
             <div id="ciSec" style="display:none;margin-bottom:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px">
-              <div style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Confidence Interval <span style="font-weight:400;opacity:.6">(±1σ &middot; ~68%)</span></div>
+              <div style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;align-items:center">Confidence Interval <span style="font-weight:400;opacity:.6;margin-left:4px">(±1σ &middot; ~68%)</span><span class="tip-wrap"><span class="tip-icon">?</span><span class="tip-box">Your prediction falls within ±1σ (one standard deviation) of this range.</span></span></div>
               <div style="display:flex;justify-content:space-between;font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:6px"><span id="ciLower">—</span><span style="color:rgba(255,255,255,.3)">range</span><span id="ciUpper">—</span></div>
               <div style="height:8px;background:rgba(255,255,255,.06);border-radius:99px;position:relative">
                 <div style="position:absolute;height:100%;width:100%;border-radius:99px;background:linear-gradient(90deg,#1565c059,#1565c099)"></div>
@@ -526,6 +582,8 @@
     if(!m||!m.task) return;
     var ml=document.getElementById('metricLabel'),mv=document.getElementById('metricValue');
     var ml2=document.getElementById('metricLabel2'),mv2=document.getElementById('metricValue2');
+    var av=document.getElementById('algoValue');
+    if(av&&m.algorithm){av.textContent=m.algorithm;}
     if(m.task==='regression'){
       if(m.r2!==undefined&&m.r2>=0.7){ml.textContent='R²';mv.textContent=m.r2.toFixed(3);mv.style.color=m.r2>=0.9?'#4ade80':'#facc15';}
       else if(m.mae!==undefined){ml.textContent='MAE';mv.textContent='±'+Math.round(m.mae);mv.style.color='#facc15';}
@@ -692,22 +750,11 @@
         var lo = data.ci_lower, hi = data.ci_upper, pred = data.prediction;
         document.getElementById('ciLower').textContent = lo < 0 ? '0' : lo.toFixed(2);
         document.getElementById('ciUpper').textContent = hi.toFixed(2);
-        resConf.textContent = 'Range: ' + (lo < 0 ? '0' : lo.toFixed(0)) + ' – ' + hi.toFixed(0) + '  (±1σ)';
+        resConf.textContent = '';
         var leftPct = hi > lo ? ((pred-lo)/(hi-lo)*0.8) : 0.5;
         document.getElementById('ciDot').style.left = Math.max(5,Math.min(95,leftPct*100)).toFixed(1)+'%';
         document.getElementById('ciSec').style.display = 'block';
       } else { resConf.textContent = ''; }
-      var m = data.metrics || {};
-      if (m.target_mean !== undefined) {
-        var sig = (data.prediction - m.target_mean) / (m.target_std || 1);
-        var bb = document.getElementById('benchmarkBadge');
-        if (bb) {
-          var bl=sig<-0.5?'Below Average':sig>0.5?'Above Average':'Near Average';
-          var bc=sig<-0.5?'#4ade80':sig>0.5?'#f87171':'#facc15';
-          bb.textContent=bl; bb.style.color=bc; bb.style.background='rgba(255,255,255,.06)';
-          bb.style.border='1px solid '+bc+'44'; bb.style.display='inline-block';
-        }
-      }
     }
 
     inputSum.innerHTML = '';
@@ -727,8 +774,8 @@
         var pct = Math.round(fi.importance / fiMax * 100);
         var opa = (0.35 + (fi.importance / fiMax) * 0.65).toFixed(2);
         var lbl = fi.feature.replace(/x\d+_/g,'').replace(/[_\-]/g,' ').trim();
-        return '<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:3px"><span style="color:rgba(255,255,255,.6)">'+lbl+'</span><span style="color:rgba(255,255,255,.4)">'+pct+'%</span></div>'+
-               '<div style="height:5px;background:rgba(255,255,255,.08);border-radius:99px"><div style="height:5px;border-radius:99px;background:linear-gradient(90deg,#1565c0,#2979ff);width:'+pct+'%"></div></div></div>';
+        return '<div class="fi-row"><div class="fi-label-row"><span class="fi-lbl">'+lbl+'</span><span class="fi-pct">'+pct+'%</span></div>'+
+               '<div class="fi-track"><div class="fi-fill" style="width:'+pct+'%"></div></div></div>';
       }).join('');
       fiSec.style.display = 'flex';
       fiSec.style.flexDirection = 'column';
