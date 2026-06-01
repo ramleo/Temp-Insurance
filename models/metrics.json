@@ -1,6 +1,7 @@
 {
   "task": "regression",
   "algorithm": "XGBoost",
+  "target": "Premium Amount",
   "r2": -0.0455,
   "mae": 690.9,
   "rmse": 912.31,

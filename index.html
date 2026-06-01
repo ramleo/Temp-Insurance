@@ -495,11 +495,11 @@
 
             <div id="benchmarkBadge" style="display:none;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:99px;margin-bottom:12px"></div>
             <div id="ciSec" style="display:none;margin-bottom:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px">
-              <div style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;align-items:center">Confidence Interval <span style="font-weight:400;opacity:.6;margin-left:4px">(±1σ &middot; ~68%)</span><span class="tip-wrap"><span class="tip-icon">?</span><span class="tip-box">Your prediction falls within ±1σ (one standard deviation) of this range.</span></span></div>
-              <div style="display:flex;justify-content:space-between;font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:6px"><span id="ciLower">—</span><span style="color:rgba(255,255,255,.3)">range</span><span id="ciUpper">—</span></div>
+              <div id="ciHeader" style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;align-items:center">Predicted Range<span class="tip-wrap"><span class="tip-icon">?</span><span class="tip-box">Your prediction falls within ±1σ (~68% probability) of this estimated range.</span></span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:.88rem;font-weight:600;color:rgba(255,255,255,.75);margin-bottom:10px"><span id="ciLower">—</span><span style="color:rgba(255,255,255,.25);font-size:.72rem;font-weight:400">to</span><span id="ciUpper">—</span></div>
               <div style="height:8px;background:rgba(255,255,255,.06);border-radius:99px;position:relative">
-                <div style="position:absolute;height:100%;width:100%;border-radius:99px;background:linear-gradient(90deg,#1565c059,#1565c099)"></div>
-                <div id="ciDot" style="position:absolute;width:12px;height:12px;border-radius:50%;background:#1565c0;top:50%;transform:translate(-50%,-50%);box-shadow:0 0 8px #1565c066"></div>
+                <div id="ciFill" style="position:absolute;height:100%;width:50%;border-radius:99px;background:linear-gradient(90deg,#1565c0,#2979ff);transition:width .4s ease"></div>
+                <div id="ciDot" style="position:absolute;width:14px;height:14px;border-radius:50%;background:#2979ff;border:2px solid rgba(255,255,255,.75);top:50%;transform:translate(-50%,-50%);transition:left .4s ease;box-shadow:0 0 8px rgba(41,121,255,.55)"></div>
               </div>
             </div>
             <div id="probSec" style="display:none;margin-bottom:20px">
@@ -556,6 +556,7 @@
   var IS_CLASS = false;
   var CLASSES  = [];
 
+  var _resLabelText = '';
   var pForm       = document.getElementById('pForm');
   var pBtn        = document.getElementById('pBtn');
   var btnTxt      = document.getElementById('btnTxt');
@@ -584,6 +585,12 @@
     var ml2=document.getElementById('metricLabel2'),mv2=document.getElementById('metricValue2');
     var av=document.getElementById('algoValue');
     if(av&&m.algorithm){av.textContent=m.algorithm;}
+    if(m.target){
+      var _t=m.target.replace(/[_\-]/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+      _resLabelText=(m.task==='regression'?'Estimated ':'Predicted ')+_t;
+      var _ch=document.getElementById('ciHeader');
+      if(_ch)_ch.textContent='Likely '+_t+' Range';
+    }
     if(m.task==='regression'){
       if(m.r2!==undefined&&m.r2>=0.7){ml.textContent='R²';mv.textContent=m.r2.toFixed(3);mv.style.color=m.r2>=0.9?'#4ade80':'#facc15';}
       else if(m.mae!==undefined){ml.textContent='MAE';mv.textContent='±'+Math.round(m.mae);mv.style.color='#facc15';}
@@ -717,7 +724,7 @@
       var labels = CLASSES.length ? CLASSES : probs.map(function(_,i){ return 'Class ' + i; });
       var maxP   = Math.max.apply(null, probs);
 
-      resLabel.textContent = 'Classified';
+      resLabel.textContent = _resLabelText || 'Classified';
       resConf.textContent  = 'Confidence: ' + (maxP * 100).toFixed(1) + '%';
 
       probBars.innerHTML = '';
@@ -744,15 +751,15 @@
         });
       }, 60);
     } else {
-      resLabel.textContent = 'Estimated Value';
+      resLabel.textContent = _resLabelText || 'Estimated Value';
       probSec.style.display = 'none';
       if (data.ci_lower !== undefined && data.ci_upper !== undefined) {
         var lo = data.ci_lower, hi = data.ci_upper, pred = data.prediction;
         document.getElementById('ciLower').textContent = lo < 0 ? '0' : lo.toFixed(2);
         document.getElementById('ciUpper').textContent = hi.toFixed(2);
         resConf.textContent = '';
-        var leftPct = hi > lo ? ((pred-lo)/(hi-lo)*0.8) : 0.5;
-        document.getElementById('ciDot').style.left = Math.max(5,Math.min(95,leftPct*100)).toFixed(1)+'%';
+        var rawPct = hi > lo ? (pred-lo)/(hi-lo) : 0.5; var dotPct = Math.max(5,Math.min(92,rawPct*100)).toFixed(1);
+        document.getElementById('ciFill').style.width = dotPct+'%'; document.getElementById('ciDot').style.left = dotPct+'%';
         document.getElementById('ciSec').style.display = 'block';
       } else { resConf.textContent = ''; }
     }
