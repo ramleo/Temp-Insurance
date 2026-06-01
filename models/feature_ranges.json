@@ -6,8 +6,9 @@
   },
   "Annual Income": {
     "min": 1233,
-    "max": 103625,
-    "step": 1
+    "max": null,
+    "step": 1,
+    "slider_max": 200000
   },
   "Number of Dependents": {
     "min": 0,
