@@ -9,7 +9,89 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Inter', sans-serif; }
-    body { min-height: 100vh; background: #080f1a; overflow-x: hidden; }
+
+    /* ── THEME TOKENS ── */
+    body {
+      min-height: 100vh; overflow-x: hidden;
+      background: #080f1a;
+      transition: background .3s;
+    }
+    body.light {
+      background: #f0f4f8;
+    }
+
+    /* dark glass */
+    body:not(.light) .glass {
+      background: rgba(255,255,255,.055);
+      backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255,255,255,.11);
+      box-shadow: 0 8px 48px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.09);
+    }
+    /* light glass */
+    body.light .glass {
+      background: rgba(255,255,255,.85);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(0,0,0,.08);
+      box-shadow: 0 4px 24px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.9);
+    }
+
+    /* text colours */
+    body.light { color: #1e293b; }
+    body.light .inp-lbl { color: #475569 !important; }
+    body.light .inp {
+      background: rgba(0,0,0,.04) !important;
+      border-color: rgba(0,0,0,.12) !important;
+      color: #1e293b !important;
+    }
+    body.light .inp::placeholder { color: rgba(0,0,0,.3) !important; }
+    body.light .inp:focus {
+      background: #fff !important;
+      border-color: #2979ff !important;
+      box-shadow: 0 0 0 3px #2979ff22 !important;
+    }
+    body.light select.inp option { background: #fff; color: #1e293b; }
+    body.light .slider { background: rgba(0,0,0,.12) !important; }
+    body.light .srv-dot.online   { box-shadow: 0 0 8px rgba(34,197,94,.5); }
+    body.light #srvTxt           { color: #475569 !important; }
+    body.light .mini-stat        { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.08); }
+    body.light .mini-stat div    { color: #64748b !important; }
+    body.light .sum-lbl          { color: #64748b !important; }
+    body.light .sum-val          { color: #1e293b !important; }
+    body.light .sum-divider      { background: rgba(0,0,0,.12) !important; }
+    body.light .sum-row          { border-color: rgba(0,0,0,.06) !important; }
+    body.light .conf-track       { background: rgba(0,0,0,.08) !important; }
+    body.light .hist-table th    { color: #64748b !important; border-color: rgba(0,0,0,.08) !important; }
+    body.light .hist-table td    { color: #334155 !important; border-color: rgba(0,0,0,.05) !important; }
+    body.light .err-box          { background: rgba(220,38,38,.08); border-color: rgba(220,38,38,.25); color: #991b1b; }
+    body.light .badge            { background: rgba(41,121,255,.1); border-color: rgba(41,121,255,.25); }
+    body.light #resVal           { color: #1e293b !important; }
+    body.light #resConf          { color: #475569 !important; }
+    body.light #resLabel         { color: #2979ff !important; }
+
+    /* hero in light mode */
+    body.light .hero {
+      background: linear-gradient(135deg, rgba(26,60,94,.7) 0%, rgba(13,33,55,.75) 100%),
+                  url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1400&h=560&fit=crop&auto=format&q=85') center/cover no-repeat;
+    }
+
+    /* theme toggle button */
+    .theme-toggle {
+      position: fixed; top: 14px; right: 18px; z-index: 999;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.22);
+      color: #fff; font-size: 1.1rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      transition: all .2s; box-shadow: 0 2px 8px rgba(0,0,0,.3);
+    }
+    body.light .theme-toggle {
+      background: rgba(255,255,255,.9);
+      border-color: rgba(0,0,0,.12);
+      color: #1e293b;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    }
+    .theme-toggle:hover { transform: scale(1.08); }
 
     .bg-mesh {
       position: fixed; inset: 0; z-index: 0;
@@ -176,6 +258,7 @@
 <body>
 
   <div class="bg-mesh"></div>
+  <button class="theme-toggle" id="themeBtn" title="Toggle light/dark theme" onclick="toggleTheme()">🌙</button>
 
   <div style="position:relative;z-index:10;min-height:100vh">
 
@@ -718,9 +801,10 @@
       inp.addEventListener('blur', function() {
         var r = _rangeData[inp.name]; if (!r) return;
         var v = parseFloat(inp.value);
-        if (inp.value !== '' && (isNaN(v) || v < r.min || v > r.max)) {
+        var hasMax = r.max !== null && r.max !== undefined;
+        if (inp.value !== '' && (isNaN(v) || v < r.min || (hasMax && v > r.max))) {
           inp.style.borderColor = '#f87171';
-          errEl.textContent = 'Expected ' + r.min + ' – ' + r.max;
+          errEl.textContent = hasMax ? ('Expected ' + r.min + ' – ' + r.max) : ('Minimum ' + r.min);
           errEl.style.display = 'block';
           inp.dataset.invalid = '1';
         } else {
@@ -768,6 +852,19 @@
     }).join('');
   }
   function clearHistory(){ _history=[]; document.getElementById('histSection').style.display='none'; }
+
+  // ── Theme toggle ──────────────────────────────────────────
+  (function() {
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light');
+      document.getElementById('themeBtn').textContent = '☀️';
+    }
+  })();
+  function toggleTheme() {
+    var isLight = document.body.classList.toggle('light');
+    document.getElementById('themeBtn').textContent = isLight ? '☀️' : '🌙';
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  }
 
   function clearAllFields() {
     pForm.querySelectorAll('input.inp, select.inp').forEach(function(el) {
