@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temp Insurance</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    body { min-height: 100vh; background: #080f1a; overflow-x: hidden; }
+
+    .bg-mesh {
+      position: fixed; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse at 15% 55%,rgba(26,60,94,.42) 0%,transparent 48%),radial-gradient(ellipse at 85% 15%,rgba(41,121,255,.36) 0%,transparent 45%),radial-gradient(ellipse at 55% 90%,rgba(26,60,94,.20) 0%,transparent 40%),radial-gradient(ellipse at 90% 65%,rgba(41,121,255,.15) 0%,transparent 38%),linear-gradient(145deg,#060c06 0%,#0d0820 50%,#070f0f 100%);
+      animation: meshAnim 14s ease-in-out infinite alternate;
+    }
+    @keyframes meshAnim {
+      0%   { filter: hue-rotate(0deg)   brightness(1);    }
+      50%  { filter: hue-rotate(18deg)  brightness(1.06); }
+      100% { filter: hue-rotate(-12deg) brightness(0.94); }
+    }
+
+    .hero {
+      background: linear-gradient(135deg,rgba(26,60,94,.65) 0%,rgba(13,33,55,.70) 100%),url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1400&h=560&fit=crop&auto=format&q=85') center/cover no-repeat;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .glass {
+      background: rgba(255,255,255,.055);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255,255,255,.11);
+      box-shadow: 0 8px 48px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.09);
+    }
+
+    .inp {
+      width: 100%; padding: 11px 14px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 10px; color: #fff;
+      font-size: .94rem; transition: all .2s; outline: none;
+    }
+    .inp::placeholder { color: rgba(255,255,255,.28); }
+    .inp:-webkit-autofill,
+    .inp:-webkit-autofill:hover,
+    .inp:-webkit-autofill:focus {
+      -webkit-text-fill-color: #fff;
+      -webkit-box-shadow: 0 0 0px 1000px rgba(255,255,255,.07) inset;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+    .inp:focus {
+      background: rgba(255,255,255,.11);
+      border-color: #2979ff;
+      box-shadow: 0 0 0 3px #2979ff33;
+    }
+    select.inp { cursor: pointer; }
+    select.inp option { background: #1e2a3a; color: #fff; }
+    .inp-lbl {
+      display: block; font-size: .68rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .09em;
+      color: rgba(255,255,255,.45); margin-bottom: 6px;
+    }
+
+    .btn-predict {
+      width: 100%; padding: 15px;
+      background: linear-gradient(135deg, #1565c0 0%, #2979ff 100%);
+      border: none; border-radius: 12px; color: #fff;
+      font-size: 1rem; font-weight: 700; letter-spacing: .03em;
+      cursor: pointer; transition: all .22s; position: relative; overflow: hidden;
+    }
+    .btn-predict::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.13), transparent);
+      pointer-events: none;
+    }
+    .btn-predict:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(0,0,0,.4);
+      background: linear-gradient(135deg, #0d47a1 0%, #2979ff 100%);
+    }
+    .btn-predict:active  { transform: translateY(0); }
+    .btn-predict:disabled { opacity: .55; cursor: not-allowed; }
+
+    .conf-track {
+      height: 7px; background: rgba(255,255,255,.09);
+      border-radius: 99px; overflow: hidden;
+    }
+    .conf-fill {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, #1565c0, #2979ff);
+      transition: width .9s cubic-bezier(.4,0,.2,1);
+    }
+
+    .mini-stat {
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 10px; padding: 12px 10px; text-align: center;
+    }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 14px;
+      background: rgba(26,60,94,.18);
+      border: 1px solid rgba(26,60,94,.40);
+      border-radius: 99px;
+      font-size: .72rem; font-weight: 700;
+      color: #2979ff; text-transform: uppercase; letter-spacing: .07em;
+    }
+
+    .srv-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #d1d5db; flex-shrink: 0; transition: background .3s;
+    }
+    .srv-dot.online   { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,.6); animation: blink 2.2s infinite; }
+    .srv-dot.offline  { background: #ef4444; }
+    .srv-dot.checking { background: #f59e0b; animation: blink 1s infinite; }
+    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(14px); }
+      to   { opacity:1; transform:translateY(0);    }
+    }
+    .fade-up { animation: fadeUp .45s ease forwards; }
+
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .err-box {
+      background: rgba(220,38,38,.15); border: 1px solid rgba(220,38,38,.35);
+      border-radius: 10px; padding: 12px 14px;
+      color: #fca5a5; font-size: .875rem; white-space: pre-wrap;
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 3px; }
+    .slider { -webkit-appearance:none; appearance:none; width:100%; height:4px; margin-top:6px;
+      background:rgba(255,255,255,.13); border-radius:99px; outline:none; cursor:pointer; display:block; }
+    .slider::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px;
+      border-radius:50%; background:#1565c0; cursor:pointer; box-shadow:0 0 6px #1565c066; }
+    .slider::-moz-range-thumb { width:14px; height:14px; border-radius:50%;
+      background:#1565c0; cursor:pointer; border:none; }
+    .hist-table { width:100%; border-collapse:collapse; font-size:.8rem; }
+    .hist-table th { padding:8px 12px; text-align:left; color:rgba(255,255,255,.3); font-size:.68rem;
+      font-weight:700; text-transform:uppercase; letter-spacing:.06em; border-bottom:1px solid rgba(255,255,255,.08); white-space:nowrap; }
+    .hist-table td { padding:9px 12px; color:rgba(255,255,255,.65); border-bottom:1px solid rgba(255,255,255,.04); white-space:nowrap; }
+    .hist-table tr:last-child td { border-bottom:none; }
+    .hist-table tr:hover td { background:rgba(255,255,255,.03); }
+    .hist-table .pred-col { color:#fff; font-weight:700; }
+    .hist-table .run-col  { color:rgba(255,255,255,.25); }
+
+    @media (max-width: 768px) {
+      #mainGrid { grid-template-columns: 1fr !important; }
+      .hero-h1  { font-size: 2rem !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-mesh"></div>
+
+  <div style="position:relative;z-index:10;min-height:100vh">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div style="max-width:1024px;margin:0 auto;padding:64px 24px;text-align:center;color:#fff">
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:99px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(8px);font-size:.85rem;font-weight:600;margin-bottom:20px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#4ade80;display:inline-block"></span>
+          Insurance
+        </div>
+        <h1 class="hero-h1" style="font-size:2.8rem;font-weight:900;letter-spacing:-0.5px;margin-bottom:14px;text-shadow:0 2px 24px rgba(0,0,0,.55)">
+          Temp Insurance
+        </h1>
+        <p style="color:rgba(255,255,255,.75);font-size:1.05rem;max-width:480px;margin:0 auto;text-shadow:0 1px 8px rgba(0,0,0,.4)">
+          AI-powered insurance risk prediction
+        </p>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div style="max-width:1024px;margin:-32px auto 0;padding:0 16px 64px">
+
+      <!-- Server status -->
+      <div class="glass" style="display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border-radius:14px;margin-bottom:20px">
+        <span class="srv-dot checking" id="srvDot"></span>
+        <span style="color:rgba(255,255,255,.65);font-size:.83rem;font-weight:600" id="srvTxt">Checking server…</span>
+      </div>
+
+      <!-- Two-column grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" id="mainGrid">
+
+        <!-- LEFT: Input Form -->
+        <div class="glass" style="border-radius:20px;padding:28px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+            <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1565c0,#2979ff);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.3)">⚗</div>
+            <div>
+              <div style="color:#fff;font-weight:700;font-size:1.05rem">Feature Inputs</div>
+              <div style="color:rgba(255,255,255,.38);font-size:.82rem">Enter your feature values below</div>
+            </div>
+          </div>
+
+          <form id="pForm">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:20px">
+              
+          <div>
+            <label class="inp-lbl">Age</label>
+            <input type="number" name="Age" class="inp" placeholder="e.g. 0" step="any" min="0" required>
+          </div>
+          <div>
+            <label class="inp-lbl">Annual Income</label>
+            <input type="number" name="Annual Income" class="inp" placeholder="e.g. 0" step="any" min="0" required>
+          </div>
+          <div>
+            <label class="inp-lbl">Number Of Dependents</label>
+            <input type="number" name="Number of Dependents" class="inp" placeholder="e.g. 0" step="any" min="0" required>
+          </div>
+          <div>
+            <label class="inp-lbl">Health Score</label>
+            <input type="number" name="Health Score" class="inp" placeholder="e.g. 0" step="any" min="0" required>
+          </div>
+          <div>
+            <label class="inp-lbl">Previous Claims</label>
+            <input type="number" name="Previous Claims" class="inp" placeholder="e.g. 0" step="any" min="0" required>
+          </div>
+          <div>
+            <label class="inp-lbl">Vehicle Age</label>
+            <input type="number" name="Vehicle Age" class="inp" placeholder="e.g. 0" step="any" min="0" required>
+          </div>
+          <div>
+            <label class="inp-lbl">Credit Score</label>
+            <input type="number" name="Credit Score" class="inp" placeholder="e.g. 0" step="any" min="0" required>
+          </div>
+          <div>
+            <label class="inp-lbl">Insurance Duration</label>
+            <input type="number" name="Insurance Duration" class="inp" placeholder="e.g. 0" step="any" min="0" required>
+          </div>
+          <div>
+            <label class="inp-lbl">Gender</label>
+            <select name="Gender" class="inp" required><option value="" disabled selected>Select…</option><option value="Female">Female</option><option value="Male">Male</option></select>
+          </div>
+          <div>
+            <label class="inp-lbl">Marital Status</label>
+            <select name="Marital Status" class="inp" required><option value="" disabled selected>Select…</option><option value="Divorced">Divorced</option><option value="Married">Married</option><option value="Single">Single</option></select>
+          </div>
+          <div>
+            <label class="inp-lbl">Education Level</label>
+            <select name="Education Level" class="inp" required><option value="" disabled selected>Select…</option><option value="Bachelor's">Bachelor's</option><option value="High School">High School</option><option value="Master's">Master's</option><option value="PhD">PhD</option></select>
+          </div>
+          <div>
+            <label class="inp-lbl">Occupation</label>
+            <select name="Occupation" class="inp" required><option value="" disabled selected>Select…</option><option value="Employed">Employed</option><option value="Self-Employed">Self-Employed</option><option value="Unemployed">Unemployed</option></select>
+          </div>
+          <div>
+            <label class="inp-lbl">Location</label>
+            <select name="Location" class="inp" required><option value="" disabled selected>Select…</option><option value="Rural">Rural</option><option value="Suburban">Suburban</option><option value="Urban">Urban</option></select>
+          </div>
+          <div>
+            <label class="inp-lbl">Policy Type</label>
+            <select name="Policy Type" class="inp" required><option value="" disabled selected>Select…</option><option value="Basic">Basic</option><option value="Comprehensive">Comprehensive</option><option value="Premium">Premium</option></select>
+          </div>
+          <div>
+            <label class="inp-lbl">Policy Start Date</label>
+            <select name="Policy Start Date" class="inp" required><option value="" disabled selected>Select…</option><option value="2019-08-17 15:21:39.130190">2019-08-17 15:21:39.130190</option><option value="2019-08-17 15:21:39.252145">2019-08-17 15:21:39.252145</option><option value="2019-08-22 15:21:39.134960">2019-08-22 15:21:39.134960</option><option value="2019-08-24 15:21:39.134960">2019-08-24 15:21:39.134960</option><option value="2019-08-25 15:21:39.090124">2019-08-25 15:21:39.090124</option><option value="2019-08-26 15:21:39.282785">2019-08-26 15:21:39.282785</option><option value="2019-08-29 15:21:39.172097">2019-08-29 15:21:39.172097</option><option value="2019-09-05 15:21:39.201446">2019-09-05 15:21:39.201446</option><option value="2019-09-07 15:21:39.255696">2019-09-07 15:21:39.255696</option><option value="2019-09-08 15:21:39.187211">2019-09-08 15:21:39.187211</option><option value="2019-09-10 15:21:39.143708">2019-09-10 15:21:39.143708</option><option value="2019-09-16 15:21:39.165120">2019-09-16 15:21:39.165120</option><option value="2019-09-20 15:21:39.092127">2019-09-20 15:21:39.092127</option><option value="2019-09-21 15:21:39.188220">2019-09-21 15:21:39.188220</option><option value="2019-09-26 15:21:39.132191">2019-09-26 15:21:39.132191</option><option value="2019-09-27 15:21:39.219432">2019-09-27 15:21:39.219432</option><option value="2019-09-30 15:21:39.197445">2019-09-30 15:21:39.197445</option><option value="2019-09-30 15:21:39.266452">2019-09-30 15:21:39.266452</option><option value="2019-10-02 15:21:39.111551">2019-10-02 15:21:39.111551</option><option value="2019-10-02 15:21:39.194829">2019-10-02 15:21:39.194829</option><option value="2019-10-02 15:21:39.230483">2019-10-02 15:21:39.230483</option><option value="2019-10-03 15:21:39.237118">2019-10-03 15:21:39.237118</option><option value="2019-10-04 15:21:39.091080">2019-10-04 15:21:39.091080</option><option value="2019-10-05 15:21:39.083497">2019-10-05 15:21:39.083497</option><option value="2019-10-05 15:21:39.094752">2019-10-05 15:21:39.094752</option><option value="2019-10-08 15:21:39.130190">2019-10-08 15:21:39.130190</option><option value="2019-10-08 15:21:39.261856">2019-10-08 15:21:39.261856</option><option value="2019-10-09 15:21:39.271453">2019-10-09 15:21:39.271453</option><option value="2019-10-11 15:21:39.198406">2019-10-11 15:21:39.198406</option><option value="2019-10-13 15:21:39.155231">2019-10-13 15:21:39.155231</option><option value="2019-10-14 15:21:39.177724">2019-10-14 15:21:39.177724</option><option value="2019-10-15 15:21:39.276901">2019-10-15 15:21:39.276901</option><option value="2019-10-17 15:21:39.171102">2019-10-17 15:21:39.171102</option><option value="2019-10-17 15:21:39.261856">2019-10-17 15:21:39.261856</option><option value="2019-10-18 15:21:39.283783">2019-10-18 15:21:39.283783</option><option value="2019-10-19 15:21:39.248098">2019-10-19 15:21:39.248098</option><option value="2019-10-21 15:21:39.223901">2019-10-21 15:21:39.223901</option><option value="2019-10-22 15:21:39.267454">2019-10-22 15:21:39.267454</option><option value="2019-10-24 15:21:39.132191">2019-10-24 15:21:39.132191</option><option value="2019-10-24 15:21:39.256696">2019-10-24 15:21:39.256696</option><option value="2019-11-05 15:21:39.101733">2019-11-05 15:21:39.101733</option><option value="2019-11-06 15:21:39.237118">2019-11-06 15:21:39.237118</option><option value="2019-11-06 15:21:39.276901">2019-11-06 15:21:39.276901</option><option value="2019-11-11 15:21:39.134960">2019-11-11 15:21:39.134960</option><option value="2019-11-14 15:21:39.132191">2019-11-14 15:21:39.132191</option><option value="2019-11-17 15:21:39.206847">2019-11-17 15:21:39.206847</option><option value="2019-11-18 15:21:39.237118">2019-11-18 15:21:39.237118</option><option value="2019-11-20 15:21:39.255696">2019-11-20 15:21:39.255696</option><option value="2019-11-22 15:21:39.185215">2019-11-22 15:21:39.185215</option><option value="2019-11-24 15:21:39.134960">2019-11-24 15:21:39.134960</option><option value="2019-11-26 15:21:39.220389">2019-11-26 15:21:39.220389</option><option value="2019-11-27 15:21:39.085129">2019-11-27 15:21:39.085129</option><option value="2019-11-27 15:21:39.144722">2019-11-27 15:21:39.144722</option><option value="2019-11-29 15:21:39.192212">2019-11-29 15:21:39.192212</option><option value="2019-11-29 15:21:39.279729">2019-11-29 15:21:39.279729</option><option value="2019-11-30 15:21:39.125660">2019-11-30 15:21:39.125660</option><option value="2019-12-02 15:21:39.274993">2019-12-02 15:21:39.274993</option><option value="2019-12-04 15:21:39.155231">2019-12-04 15:21:39.155231</option><option value="2019-12-07 15:21:39.094752">2019-12-07 15:21:39.094752</option><option value="2019-12-07 15:21:39.134960">2019-12-07 15:21:39.134960</option><option value="2019-12-08 15:21:39.132191">2019-12-08 15:21:39.132191</option><option value="2019-12-08 15:21:39.246098">2019-12-08 15:21:39.246098</option><option value="2019-12-10 15:21:39.254678">2019-12-10 15:21:39.254678</option><option value="2019-12-10 15:21:39.265513">2019-12-10 15:21:39.265513</option><option value="2019-12-12 15:21:39.134960">2019-12-12 15:21:39.134960</option><option value="2019-12-12 15:21:39.180553">2019-12-12 15:21:39.180553</option><option value="2019-12-13 15:21:39.179186">2019-12-13 15:21:39.179186</option><option value="2019-12-22 15:21:39.134960">2019-12-22 15:21:39.134960</option><option value="2019-12-24 15:21:39.170099">2019-12-24 15:21:39.170099</option><option value="2019-12-26 15:21:39.261856">2019-12-26 15:21:39.261856</option><option value="2019-12-26 15:21:39.290098">2019-12-26 15:21:39.290098</option><option value="2019-12-27 15:21:39.155231">2019-12-27 15:21:39.155231</option><option value="2019-12-28 15:21:39.102694">2019-12-28 15:21:39.102694</option><option value="2019-12-29 15:21:39.145732">2019-12-29 15:21:39.145732</option><option value="2019-12-30 15:21:39.171102">2019-12-30 15:21:39.171102</option><option value="2020-01-01 15:21:39.134960">2020-01-01 15:21:39.134960</option><option value="2020-01-03 15:21:39.155231">2020-01-03 15:21:39.155231</option><option value="2020-01-04 15:21:39.152732">2020-01-04 15:21:39.152732</option><option value="2020-01-07 15:21:39.134960">2020-01-07 15:21:39.134960</option><option value="2020-01-07 15:21:39.171102">2020-01-07 15:21:39.171102</option><option value="2020-01-08 15:21:39.087123">2020-01-08 15:21:39.087123</option><option value="2020-01-08 15:21:39.155231">2020-01-08 15:21:39.155231</option><option value="2020-01-09 15:21:39.172097">2020-01-09 15:21:39.172097</option><option value="2020-01-10 15:21:39.095696">2020-01-10 15:21:39.095696</option><option value="2020-01-10 15:21:39.207847">2020-01-10 15:21:39.207847</option><option value="2020-01-12 15:21:39.083497">2020-01-12 15:21:39.083497</option><option value="2020-01-14 15:21:39.186212">2020-01-14 15:21:39.186212</option><option value="2020-01-16 15:21:39.096739">2020-01-16 15:21:39.096739</option><option value="2020-01-16 15:21:39.133866">2020-01-16 15:21:39.133866</option><option value="2020-01-20 15:21:39.151732">2020-01-20 15:21:39.151732</option><option value="2020-01-21 15:21:39.172097">2020-01-21 15:21:39.172097</option><option value="2020-01-29 15:21:39.091080">2020-01-29 15:21:39.091080</option><option value="2020-01-29 15:21:39.155231">2020-01-29 15:21:39.155231</option><option value="2020-02-01 15:21:39.213373">2020-02-01 15:21:39.213373</option><option value="2020-02-01 15:21:39.282785">2020-02-01 15:21:39.282785</option><option value="2020-02-02 15:21:39.134960">2020-02-02 15:21:39.134960</option><option value="2020-02-04 15:21:39.134960">2020-02-04 15:21:39.134960</option><option value="2020-02-05 15:21:39.285112">2020-02-05 15:21:39.285112</option><option value="2020-02-10 15:21:39.274993">2020-02-10 15:21:39.274993</option><option value="2020-02-13 15:21:39.237118">2020-02-13 15:21:39.237118</option><option value="2020-02-14 15:21:39.081504">2020-02-14 15:21:39.081504</option><option value="2020-02-15 15:21:39.271453">2020-02-15 15:21:39.271453</option><option value="2020-02-16 15:21:39.207847">2020-02-16 15:21:39.207847</option><option value="2020-02-17 15:21:39.254678">2020-02-17 15:21:39.254678</option><option value="2020-02-18 15:21:39.120168">2020-02-18 15:21:39.120168</option><option value="2020-02-18 15:21:39.134960">2020-02-18 15:21:39.134960</option><option value="2020-02-21 15:21:39.094752">2020-02-21 15:21:39.094752</option><option value="2020-02-22 15:21:39.200452">2020-02-22 15:21:39.200452</option><option value="2020-02-23 15:21:39.084065">2020-02-23 15:21:39.084065</option><option value="2020-02-25 15:21:39.202448">2020-02-25 15:21:39.202448</option><option value="2020-02-26 15:21:39.237118">2020-02-26 15:21:39.237118</option><option value="2020-02-27 15:21:39.252145">2020-02-27 15:21:39.252145</option><option value="2020-02-29 15:21:39.180553">2020-02-29 15:21:39.180553</option><option value="2020-02-29 15:21:39.259788">2020-02-29 15:21:39.259788</option><option value="2020-03-05 15:21:39.228521">2020-03-05 15:21:39.228521</option><option value="2020-03-07 15:21:39.176717">2020-03-07 15:21:39.176717</option><option value="2020-03-08 15:21:39.237118">2020-03-08 15:21:39.237118</option><option value="2020-03-10 15:21:39.084065">2020-03-10 15:21:39.084065</option><option value="2020-03-11 15:21:39.176717">2020-03-11 15:21:39.176717</option><option value="2020-03-11 15:21:39.226954">2020-03-11 15:21:39.226954</option><option value="2020-03-13 15:21:39.175719">2020-03-13 15:21:39.175719</option><option value="2020-03-14 15:21:39.101733">2020-03-14 15:21:39.101733</option><option value="2020-03-15 15:21:39.134960">2020-03-15 15:21:39.134960</option><option value="2020-03-17 15:21:39.081504">2020-03-17 15:21:39.081504</option><option value="2020-03-19 15:21:39.094752">2020-03-19 15:21:39.094752</option><option value="2020-03-23 15:21:39.237118">2020-03-23 15:21:39.237118</option><option value="2020-03-26 15:21:39.155231">2020-03-26 15:21:39.155231</option><option value="2020-03-30 15:21:39.250151">2020-03-30 15:21:39.250151</option><option value="2020-04-01 15:21:39.120168">2020-04-01 15:21:39.120168</option><option value="2020-04-04 15:21:39.116179">2020-04-04 15:21:39.116179</option><option value="2020-04-06 15:21:39.185215">2020-04-06 15:21:39.185215</option><option value="2020-04-07 15:21:39.094752">2020-04-07 15:21:39.094752</option><option value="2020-04-07 15:21:39.134960">2020-04-07 15:21:39.134960</option><option value="2020-04-08 15:21:39.254678">2020-04-08 15:21:39.254678</option><option value="2020-04-14 15:21:39.237118">2020-04-14 15:21:39.237118</option><option value="2020-04-14 15:21:39.261856">2020-04-14 15:21:39.261856</option><option value="2020-04-15 15:21:39.204790">2020-04-15 15:21:39.204790</option><option value="2020-04-19 15:21:39.155231">2020-04-19 15:21:39.155231</option><option value="2020-04-24 15:21:39.134960">2020-04-24 15:21:39.134960</option><option value="2020-04-25 15:21:39.288099">2020-04-25 15:21:39.288099</option><option value="2020-04-26 15:21:39.097737">2020-04-26 15:21:39.097737</option><option value="2020-04-26 15:21:39.261856">2020-04-26 15:21:39.261856</option><option value="2020-04-28 15:21:39.174719">2020-04-28 15:21:39.174719</option><option value="2020-04-29 15:21:39.126661">2020-04-29 15:21:39.126661</option><option value="2020-04-29 15:21:39.166062">2020-04-29 15:21:39.166062</option><option value="2020-04-30 15:21:39.223390">2020-04-30 15:21:39.223390</option><option value="2020-05-01 15:21:39.166062">2020-05-01 15:21:39.166062</option><option value="2020-05-01 15:21:39.192212">2020-05-01 15:21:39.192212</option><option value="2020-05-02 15:21:39.134960">2020-05-02 15:21:39.134960</option><option value="2020-05-03 15:21:39.134960">2020-05-03 15:21:39.134960</option><option value="2020-05-03 15:21:39.198406">2020-05-03 15:21:39.198406</option><option value="2020-05-05 15:21:39.188220">2020-05-05 15:21:39.188220</option><option value="2020-05-07 15:21:39.290098">2020-05-07 15:21:39.290098</option><option value="2020-05-10 15:21:39.134960">2020-05-10 15:21:39.134960</option><option value="2020-05-11 15:21:39.095696">2020-05-11 15:21:39.095696</option><option value="2020-05-11 15:21:39.100695">2020-05-11 15:21:39.100695</option><option value="2020-05-11 15:21:39.237118">2020-05-11 15:21:39.237118</option><option value="2020-05-12 15:21:39.206847">2020-05-12 15:21:39.206847</option><option value="2020-05-14 15:21:39.246098">2020-05-14 15:21:39.246098</option><option value="2020-05-22 15:21:39.155231">2020-05-22 15:21:39.155231</option><option value="2020-05-26 15:21:39.274993">2020-05-26 15:21:39.274993</option><option value="2020-05-26 15:21:39.279729">2020-05-26 15:21:39.279729</option><option value="2020-05-28 15:21:39.252145">2020-05-28 15:21:39.252145</option><option value="2020-05-30 15:21:39.207847">2020-05-30 15:21:39.207847</option><option value="2020-05-30 15:21:39.214388">2020-05-30 15:21:39.214388</option><option value="2020-05-30 15:21:39.245086">2020-05-30 15:21:39.245086</option><option value="2020-06-01 15:21:39.134960">2020-06-01 15:21:39.134960</option><option value="2020-06-03 15:21:39.149731">2020-06-03 15:21:39.149731</option><option value="2020-06-03 15:21:39.206847">2020-06-03 15:21:39.206847</option><option value="2020-06-08 15:21:39.237118">2020-06-08 15:21:39.237118</option><option value="2020-06-09 15:21:39.211806">2020-06-09 15:21:39.211806</option><option value="2020-06-10 15:21:39.102694">2020-06-10 15:21:39.102694</option><option value="2020-06-12 15:21:39.134960">2020-06-12 15:21:39.134960</option><option value="2020-06-12 15:21:39.236064">2020-06-12 15:21:39.236064</option><option value="2020-06-14 15:21:39.265513">2020-06-14 15:21:39.265513</option><option value="2020-06-16 15:21:39.155231">2020-06-16 15:21:39.155231</option><option value="2020-06-17 15:21:39.124659">2020-06-17 15:21:39.124659</option><option value="2020-06-18 15:21:39.223901">2020-06-18 15:21:39.223901</option><option value="2020-06-19 15:21:39.182597">2020-06-19 15:21:39.182597</option><option value="2020-06-20 15:21:39.130190">2020-06-20 15:21:39.130190</option><option value="2020-06-21 15:21:39.174719">2020-06-21 15:21:39.174719</option><option value="2020-06-22 15:21:39.170099">2020-06-22 15:21:39.170099</option><option value="2020-06-24 15:21:39.134960">2020-06-24 15:21:39.134960</option><option value="2020-06-25 15:21:39.237118">2020-06-25 15:21:39.237118</option><option value="2020-06-27 15:21:39.190215">2020-06-27 15:21:39.190215</option><option value="2020-06-29 15:21:39.155231">2020-06-29 15:21:39.155231</option><option value="2020-06-30 15:21:39.274993">2020-06-30 15:21:39.274993</option><option value="2020-07-01 15:21:39.237118">2020-07-01 15:21:39.237118</option><option value="2020-07-02 15:21:39.110557">2020-07-02 15:21:39.110557</option><option value="2020-07-05 15:21:39.174719">2020-07-05 15:21:39.174719</option><option value="2020-07-06 15:21:39.112553">2020-07-06 15:21:39.112553</option><option value="2020-07-06 15:21:39.222387">2020-07-06 15:21:39.222387</option><option value="2020-07-07 15:21:39.134960">2020-07-07 15:21:39.134960</option><option value="2020-07-07 15:21:39.221386">2020-07-07 15:21:39.221386</option><option value="2020-07-10 15:21:39.134960">2020-07-10 15:21:39.134960</option><option value="2020-07-10 15:21:39.207847">2020-07-10 15:21:39.207847</option><option value="2020-07-13 15:21:39.184157">2020-07-13 15:21:39.184157</option><option value="2020-07-15 15:21:39.266452">2020-07-15 15:21:39.266452</option><option value="2020-07-16 15:21:39.171102">2020-07-16 15:21:39.171102</option><option value="2020-07-17 15:21:39.237118">2020-07-17 15:21:39.237118</option><option value="2020-07-22 15:21:39.134960">2020-07-22 15:21:39.134960</option><option value="2020-07-24 15:21:39.143708">2020-07-24 15:21:39.143708</option><option value="2020-07-24 15:21:39.223901">2020-07-24 15:21:39.223901</option><option value="2020-07-27 15:21:39.132191">2020-07-27 15:21:39.132191</option><option value="2020-07-28 15:21:39.146733">2020-07-28 15:21:39.146733</option><option value="2020-07-28 15:21:39.181605">2020-07-28 15:21:39.181605</option><option value="2020-07-29 15:21:39.176717">2020-07-29 15:21:39.176717</option><option value="2020-07-31 15:21:39.283783">2020-07-31 15:21:39.283783</option><option value="2020-08-01 15:21:39.134960">2020-08-01 15:21:39.134960</option><option value="2020-08-03 15:21:39.265513">2020-08-03 15:21:39.265513</option><option value="2020-08-05 15:21:39.155231">2020-08-05 15:21:39.155231</option><option value="2020-08-07 15:21:39.134960">2020-08-07 15:21:39.134960</option><option value="2020-08-07 15:21:39.155231">2020-08-07 15:21:39.155231</option><option value="2020-08-08 15:21:39.145732">2020-08-08 15:21:39.145732</option><option value="2020-08-08 15:21:39.265513">2020-08-08 15:21:39.265513</option><option value="2020-08-11 15:21:39.104139">2020-08-11 15:21:39.104139</option><option value="2020-08-12 15:21:39.091080">2020-08-12 15:21:39.091080</option><option value="2020-08-16 15:21:39.086123">2020-08-16 15:21:39.086123</option><option value="2020-08-16 15:21:39.134960">2020-08-16 15:21:39.134960</option><option value="2020-08-17 15:21:39.134960">2020-08-17 15:21:39.134960</option><option value="2020-08-17 15:21:39.172097">2020-08-17 15:21:39.172097</option><option value="2020-08-18 15:21:39.175719">2020-08-18 15:21:39.175719</option><option value="2020-08-20 15:21:39.237118">2020-08-20 15:21:39.237118</option><option value="2020-08-23 15:21:39.183598">2020-08-23 15:21:39.183598</option><option value="2020-08-23 15:21:39.208842">2020-08-23 15:21:39.208842</option><option value="2020-08-25 15:21:39.244069">2020-08-25 15:21:39.244069</option><option value="2020-08-25 15:21:39.276901">2020-08-25 15:21:39.276901</option><option value="2020-08-28 15:21:39.091080">2020-08-28 15:21:39.091080</option><option value="2020-09-02 15:21:39.080440">2020-09-02 15:21:39.080440</option><option value="2020-09-02 15:21:39.155231">2020-09-02 15:21:39.155231</option><option value="2020-09-02 15:21:39.236064">2020-09-02 15:21:39.236064</option><option value="2020-09-03 15:21:39.228521">2020-09-03 15:21:39.228521</option><option value="2020-09-06 15:21:39.144722">2020-09-06 15:21:39.144722</option><option value="2020-09-07 15:21:39.093681">2020-09-07 15:21:39.093681</option><option value="2020-09-07 15:21:39.184157">2020-09-07 15:21:39.184157</option><option value="2020-09-11 15:21:39.134960">2020-09-11 15:21:39.134960</option><option value="2020-09-12 15:21:39.134960">2020-09-12 15:21:39.134960</option><option value="2020-09-12 15:21:39.261856">2020-09-12 15:21:39.261856</option><option value="2020-09-13 15:21:39.231531">2020-09-13 15:21:39.231531</option><option value="2020-09-21 15:21:39.226954">2020-09-21 15:21:39.226954</option><option value="2020-09-22 15:21:39.111551">2020-09-22 15:21:39.111551</option><option value="2020-09-23 15:21:39.237118">2020-09-23 15:21:39.237118</option><option value="2020-09-27 15:21:39.216387">2020-09-27 15:21:39.216387</option><option value="2020-09-27 15:21:39.270454">2020-09-27 15:21:39.270454</option><option value="2020-09-30 15:21:39.105504">2020-09-30 15:21:39.105504</option><option value="2020-10-01 15:21:39.124659">2020-10-01 15:21:39.124659</option><option value="2020-10-04 15:21:39.253660">2020-10-04 15:21:39.253660</option><option value="2020-10-07 15:21:39.155231">2020-10-07 15:21:39.155231</option><option value="2020-10-08 15:21:39.246098">2020-10-08 15:21:39.246098</option><option value="2020-10-09 15:21:39.247098">2020-10-09 15:21:39.247098</option><option value="2020-10-12 15:21:39.155231">2020-10-12 15:21:39.155231</option><option value="2020-10-12 15:21:39.274993">2020-10-12 15:21:39.274993</option><option value="2020-10-13 15:21:39.155231">2020-10-13 15:21:39.155231</option><option value="2020-10-14 15:21:39.155231">2020-10-14 15:21:39.155231</option><option value="2020-10-16 15:21:39.097737">2020-10-16 15:21:39.097737</option><option value="2020-10-16 15:21:39.228521">2020-10-16 15:21:39.228521</option><option value="2020-10-17 15:21:39.105504">2020-10-17 15:21:39.105504</option><option value="2020-10-19 15:21:39.237118">2020-10-19 15:21:39.237118</option><option value="2020-10-19 15:21:39.260856">2020-10-19 15:21:39.260856</option><option value="2020-10-20 15:21:39.155231">2020-10-20 15:21:39.155231</option><option value="2020-10-21 15:21:39.155231">2020-10-21 15:21:39.155231</option><option value="2020-10-27 15:21:39.119168">2020-10-27 15:21:39.119168</option><option value="2020-10-30 15:21:39.190215">2020-10-30 15:21:39.190215</option><option value="2020-11-03 15:21:39.087123">2020-11-03 15:21:39.087123</option><option value="2020-11-05 15:21:39.220389">2020-11-05 15:21:39.220389</option><option value="2020-11-06 15:21:39.230483">2020-11-06 15:21:39.230483</option><option value="2020-11-07 15:21:39.120168">2020-11-07 15:21:39.120168</option><option value="2020-11-08 15:21:39.155231">2020-11-08 15:21:39.155231</option><option value="2020-11-11 15:21:39.230483">2020-11-11 15:21:39.230483</option><option value="2020-11-12 15:21:39.134960">2020-11-12 15:21:39.134960</option><option value="2020-11-15 15:21:39.256696">2020-11-15 15:21:39.256696</option><option value="2020-11-20 15:21:39.134960">2020-11-20 15:21:39.134960</option><option value="2020-11-21 15:21:39.145732">2020-11-21 15:21:39.145732</option><option value="2020-11-22 15:21:39.261856">2020-11-22 15:21:39.261856</option><option value="2020-11-24 15:21:39.134960">2020-11-24 15:21:39.134960</option><option value="2020-11-25 15:21:39.237118">2020-11-25 15:21:39.237118</option><option value="2020-11-26 15:21:39.223390">2020-11-26 15:21:39.223390</option><option value="2020-11-28 15:21:39.249100">2020-11-28 15:21:39.249100</option><option value="2020-11-29 15:21:39.146733">2020-11-29 15:21:39.146733</option><option value="2020-12-01 15:21:39.211806">2020-12-01 15:21:39.211806</option><option value="2020-12-02 15:21:39.170099">2020-12-02 15:21:39.170099</option><option value="2020-12-04 15:21:39.134960">2020-12-04 15:21:39.134960</option><option value="2020-12-06 15:21:39.134960">2020-12-06 15:21:39.134960</option><option value="2020-12-08 15:21:39.096739">2020-12-08 15:21:39.096739</option><option value="2020-12-17 15:21:39.209847">2020-12-17 15:21:39.209847</option><option value="2020-12-19 15:21:39.154008">2020-12-19 15:21:39.154008</option><option value="2020-12-25 15:21:39.271453">2020-12-25 15:21:39.271453</option><option value="2020-12-26 15:21:39.226954">2020-12-26 15:21:39.226954</option><option value="2020-12-28 15:21:39.091080">2020-12-28 15:21:39.091080</option><option value="2020-12-28 15:21:39.271453">2020-12-28 15:21:39.271453</option><option value="2021-01-02 15:21:39.126661">2021-01-02 15:21:39.126661</option><option value="2021-01-04 15:21:39.237118">2021-01-04 15:21:39.237118</option><option value="2021-01-06 15:21:39.119168">2021-01-06 15:21:39.119168</option><option value="2021-01-06 15:21:39.173834">2021-01-06 15:21:39.173834</option><option value="2021-01-12 15:21:39.237118">2021-01-12 15:21:39.237118</option><option value="2021-01-17 15:21:39.080440">2021-01-17 15:21:39.080440</option><option value="2021-01-17 15:21:39.193945">2021-01-17 15:21:39.193945</option><option value="2021-01-22 15:21:39.256696">2021-01-22 15:21:39.256696</option><option value="2021-01-23 15:21:39.277975">2021-01-23 15:21:39.277975</option><option value="2021-01-25 15:21:39.209847">2021-01-25 15:21:39.209847</option><option value="2021-01-26 15:21:39.269494">2021-01-26 15:21:39.269494</option><option value="2021-01-31 15:21:39.134960">2021-01-31 15:21:39.134960</option><option value="2021-02-01 15:21:39.170099">2021-02-01 15:21:39.170099</option><option value="2021-02-04 15:21:39.182597">2021-02-04 15:21:39.182597</option><option value="2021-02-04 15:21:39.278402">2021-02-04 15:21:39.278402</option><option value="2021-02-07 15:21:39.134960">2021-02-07 15:21:39.134960</option><option value="2021-02-10 15:21:39.155231">2021-02-10 15:21:39.155231</option><option value="2021-02-13 15:21:39.237118">2021-02-13 15:21:39.237118</option><option value="2021-02-15 15:21:39.102694">2021-02-15 15:21:39.102694</option><option value="2021-02-15 15:21:39.172097">2021-02-15 15:21:39.172097</option><option value="2021-02-18 15:21:39.205850">2021-02-18 15:21:39.205850</option><option value="2021-02-21 15:21:39.155231">2021-02-21 15:21:39.155231</option><option value="2021-02-22 15:21:39.095696">2021-02-22 15:21:39.095696</option><option value="2021-02-24 15:21:39.094752">2021-02-24 15:21:39.094752</option><option value="2021-02-24 15:21:39.268507">2021-02-24 15:21:39.268507</option><option value="2021-02-26 15:21:39.236064">2021-02-26 15:21:39.236064</option><option value="2021-02-27 15:21:39.091080">2021-02-27 15:21:39.091080</option><option value="2021-03-01 15:21:39.172097">2021-03-01 15:21:39.172097</option><option value="2021-03-01 15:21:39.186212">2021-03-01 15:21:39.186212</option><option value="2021-03-02 15:21:39.244069">2021-03-02 15:21:39.244069</option><option value="2021-03-04 15:21:39.251142">2021-03-04 15:21:39.251142</option><option value="2021-03-06 15:21:39.201446">2021-03-06 15:21:39.201446</option><option value="2021-03-07 15:21:39.221386">2021-03-07 15:21:39.221386</option><option value="2021-03-10 15:21:39.134960">2021-03-10 15:21:39.134960</option><option value="2021-03-12 15:21:39.237118">2021-03-12 15:21:39.237118</option><option value="2021-03-16 15:21:39.237118">2021-03-16 15:21:39.237118</option><option value="2021-03-17 15:21:39.084065">2021-03-17 15:21:39.084065</option><option value="2021-03-19 15:21:39.111551">2021-03-19 15:21:39.111551</option><option value="2021-03-20 15:21:39.114118">2021-03-20 15:21:39.114118</option><option value="2021-03-21 15:21:39.144722">2021-03-21 15:21:39.144722</option><option value="2021-03-25 15:21:39.285112">2021-03-25 15:21:39.285112</option><option value="2021-03-26 15:21:39.134960">2021-03-26 15:21:39.134960</option><option value="2021-03-27 15:21:39.119168">2021-03-27 15:21:39.119168</option><option value="2021-03-27 15:21:39.144722">2021-03-27 15:21:39.144722</option><option value="2021-03-28 15:21:39.191219">2021-03-28 15:21:39.191219</option><option value="2021-03-30 15:21:39.155231">2021-03-30 15:21:39.155231</option><option value="2021-03-30 15:21:39.279729">2021-03-30 15:21:39.279729</option><option value="2021-04-01 15:21:39.279729">2021-04-01 15:21:39.279729</option><option value="2021-04-07 15:21:39.133866">2021-04-07 15:21:39.133866</option><option value="2021-04-09 15:21:39.155231">2021-04-09 15:21:39.155231</option><option value="2021-04-11 15:21:39.155231">2021-04-11 15:21:39.155231</option><option value="2021-04-12 15:21:39.125660">2021-04-12 15:21:39.125660</option><option value="2021-04-14 15:21:39.155231">2021-04-14 15:21:39.155231</option><option value="2021-04-15 15:21:39.134960">2021-04-15 15:21:39.134960</option><option value="2021-04-17 15:21:39.109552">2021-04-17 15:21:39.109552</option><option value="2021-04-22 15:21:39.228521">2021-04-22 15:21:39.228521</option><option value="2021-04-23 15:21:39.226954">2021-04-23 15:21:39.226954</option><option value="2021-04-29 15:21:39.228521">2021-04-29 15:21:39.228521</option><option value="2021-05-01 15:21:39.155231">2021-05-01 15:21:39.155231</option><option value="2021-05-01 15:21:39.219432">2021-05-01 15:21:39.219432</option><option value="2021-05-03 15:21:39.198406">2021-05-03 15:21:39.198406</option><option value="2021-05-05 15:21:39.134960">2021-05-05 15:21:39.134960</option><option value="2021-05-10 15:21:39.134960">2021-05-10 15:21:39.134960</option><option value="2021-05-12 15:21:39.081504">2021-05-12 15:21:39.081504</option><option value="2021-05-19 15:21:39.122134">2021-05-19 15:21:39.122134</option><option value="2021-05-19 15:21:39.155231">2021-05-19 15:21:39.155231</option><option value="2021-05-20 15:21:39.134960">2021-05-20 15:21:39.134960</option><option value="2021-05-21 15:21:39.269494">2021-05-21 15:21:39.269494</option><option value="2021-05-23 15:21:39.155231">2021-05-23 15:21:39.155231</option><option value="2021-05-24 15:21:39.193945">2021-05-24 15:21:39.193945</option><option value="2021-05-27 15:21:39.253660">2021-05-27 15:21:39.253660</option><option value="2021-05-29 15:21:39.184157">2021-05-29 15:21:39.184157</option><option value="2021-05-31 15:21:39.155231">2021-05-31 15:21:39.155231</option><option value="2021-06-01 15:21:39.205850">2021-06-01 15:21:39.205850</option><option value="2021-06-06 15:21:39.231531">2021-06-06 15:21:39.231531</option><option value="2021-06-11 15:21:39.172097">2021-06-11 15:21:39.172097</option><option value="2021-06-17 15:21:39.246098">2021-06-17 15:21:39.246098</option><option value="2021-06-21 15:21:39.246098">2021-06-21 15:21:39.246098</option><option value="2021-06-28 15:21:39.171102">2021-06-28 15:21:39.171102</option><option value="2021-06-29 15:21:39.231531">2021-06-29 15:21:39.231531</option><option value="2021-06-29 15:21:39.245086">2021-06-29 15:21:39.245086</option><option value="2021-07-04 15:21:39.255696">2021-07-04 15:21:39.255696</option><option value="2021-07-06 15:21:39.155231">2021-07-06 15:21:39.155231</option><option value="2021-07-17 15:21:39.221386">2021-07-17 15:21:39.221386</option><option value="2021-07-17 15:21:39.246098">2021-07-17 15:21:39.246098</option><option value="2021-07-18 15:21:39.209847">2021-07-18 15:21:39.209847</option><option value="2021-07-19 15:21:39.286113">2021-07-19 15:21:39.286113</option><option value="2021-07-20 15:21:39.097737">2021-07-20 15:21:39.097737</option><option value="2021-07-21 15:21:39.134960">2021-07-21 15:21:39.134960</option><option value="2021-07-21 15:21:39.155231">2021-07-21 15:21:39.155231</option><option value="2021-07-25 15:21:39.102694">2021-07-25 15:21:39.102694</option><option value="2021-07-26 15:21:39.092127">2021-07-26 15:21:39.092127</option><option value="2021-07-30 15:21:39.247098">2021-07-30 15:21:39.247098</option><option value="2021-07-31 15:21:39.134960">2021-07-31 15:21:39.134960</option><option value="2021-08-02 15:21:39.222387">2021-08-02 15:21:39.222387</option><option value="2021-08-08 15:21:39.092127">2021-08-08 15:21:39.092127</option><option value="2021-08-08 15:21:39.278402">2021-08-08 15:21:39.278402</option><option value="2021-08-11 15:21:39.155231">2021-08-11 15:21:39.155231</option><option value="2021-08-13 15:21:39.134960">2021-08-13 15:21:39.134960</option><option value="2021-08-15 15:21:39.253660">2021-08-15 15:21:39.253660</option><option value="2021-08-18 15:21:39.150730">2021-08-18 15:21:39.150730</option><option value="2021-08-19 15:21:39.189223">2021-08-19 15:21:39.189223</option><option value="2021-08-20 15:21:39.225916">2021-08-20 15:21:39.225916</option><option value="2021-08-21 15:21:39.209847">2021-08-21 15:21:39.209847</option><option value="2021-08-23 15:21:39.261856">2021-08-23 15:21:39.261856</option><option value="2021-08-24 15:21:39.150730">2021-08-24 15:21:39.150730</option><option value="2021-08-29 15:21:39.134960">2021-08-29 15:21:39.134960</option><option value="2021-09-01 15:21:39.134960">2021-09-01 15:21:39.134960</option><option value="2021-09-04 15:21:39.134960">2021-09-04 15:21:39.134960</option><option value="2021-09-05 15:21:39.122134">2021-09-05 15:21:39.122134</option><option value="2021-09-09 15:21:39.261856">2021-09-09 15:21:39.261856</option><option value="2021-09-12 15:21:39.272456">2021-09-12 15:21:39.272456</option><option value="2021-09-13 15:21:39.176717">2021-09-13 15:21:39.176717</option><option value="2021-09-13 15:21:39.253660">2021-09-13 15:21:39.253660</option><option value="2021-09-15 15:21:39.278402">2021-09-15 15:21:39.278402</option><option value="2021-09-19 15:21:39.090124">2021-09-19 15:21:39.090124</option><option value="2021-09-19 15:21:39.108562">2021-09-19 15:21:39.108562</option><option value="2021-09-20 15:21:39.245086">2021-09-20 15:21:39.245086</option><option value="2021-09-21 15:21:39.134960">2021-09-21 15:21:39.134960</option><option value="2021-09-22 15:21:39.191219">2021-09-22 15:21:39.191219</option><option value="2021-09-22 15:21:39.267454">2021-09-22 15:21:39.267454</option><option value="2021-09-27 15:21:39.164044">2021-09-27 15:21:39.164044</option><option value="2021-09-29 15:21:39.134960">2021-09-29 15:21:39.134960</option><option value="2021-09-29 15:21:39.177724">2021-09-29 15:21:39.177724</option><option value="2021-10-02 15:21:39.143708">2021-10-02 15:21:39.143708</option><option value="2021-10-03 15:21:39.134960">2021-10-03 15:21:39.134960</option><option value="2021-10-06 15:21:39.079128">2021-10-06 15:21:39.079128</option><option value="2021-10-07 15:21:39.134960">2021-10-07 15:21:39.134960</option><option value="2021-10-07 15:21:39.286113">2021-10-07 15:21:39.286113</option><option value="2021-10-10 15:21:39.247098">2021-10-10 15:21:39.247098</option><option value="2021-10-13 15:21:39.186212">2021-10-13 15:21:39.186212</option><option value="2021-10-18 15:21:39.155231">2021-10-18 15:21:39.155231</option><option value="2021-10-19 15:21:39.205850">2021-10-19 15:21:39.205850</option><option value="2021-10-21 15:21:39.155231">2021-10-21 15:21:39.155231</option><option value="2021-10-27 15:21:39.155231">2021-10-27 15:21:39.155231</option><option value="2021-11-02 15:21:39.264504">2021-11-02 15:21:39.264504</option><option value="2021-11-04 15:21:39.115178">2021-11-04 15:21:39.115178</option><option value="2021-11-07 15:21:39.274993">2021-11-07 15:21:39.274993</option><option value="2021-11-09 15:21:39.122134">2021-11-09 15:21:39.122134</option><option value="2021-11-12 15:21:39.187211">2021-11-12 15:21:39.187211</option><option value="2021-11-12 15:21:39.268507">2021-11-12 15:21:39.268507</option><option value="2021-11-14 15:21:39.134960">2021-11-14 15:21:39.134960</option><option value="2021-11-14 15:21:39.244069">2021-11-14 15:21:39.244069</option><option value="2021-11-15 15:21:39.248098">2021-11-15 15:21:39.248098</option><option value="2021-11-16 15:21:39.224915">2021-11-16 15:21:39.224915</option><option value="2021-11-18 15:21:39.260856">2021-11-18 15:21:39.260856</option><option value="2021-11-25 15:21:39.237118">2021-11-25 15:21:39.237118</option><option value="2021-11-30 15:21:39.263607">2021-11-30 15:21:39.263607</option><option value="2021-12-01 15:21:39.134960">2021-12-01 15:21:39.134960</option><option value="2021-12-03 15:21:39.237118">2021-12-03 15:21:39.237118</option><option value="2021-12-03 15:21:39.289099">2021-12-03 15:21:39.289099</option><option value="2021-12-06 15:21:39.259788">2021-12-06 15:21:39.259788</option><option value="2021-12-07 15:21:39.264504">2021-12-07 15:21:39.264504</option><option value="2021-12-09 15:21:39.276901">2021-12-09 15:21:39.276901</option><option value="2021-12-12 15:21:39.155231">2021-12-12 15:21:39.155231</option><option value="2021-12-12 15:21:39.190215">2021-12-12 15:21:39.190215</option><option value="2021-12-16 15:21:39.263607">2021-12-16 15:21:39.263607</option><option value="2021-12-24 15:21:39.221386">2021-12-24 15:21:39.221386</option><option value="2021-12-27 15:21:39.155231">2021-12-27 15:21:39.155231</option><option value="2021-12-27 15:21:39.233998">2021-12-27 15:21:39.233998</option><option value="2021-12-28 15:21:39.092127">2021-12-28 15:21:39.092127</option><option value="2021-12-28 15:21:39.155231">2021-12-28 15:21:39.155231</option><option value="2022-01-10 15:21:39.081504">2022-01-10 15:21:39.081504</option><option value="2022-01-14 15:21:39.263607">2022-01-14 15:21:39.263607</option><option value="2022-01-15 15:21:39.237118">2022-01-15 15:21:39.237118</option><option value="2022-01-15 15:21:39.271453">2022-01-15 15:21:39.271453</option><option value="2022-01-16 15:21:39.095696">2022-01-16 15:21:39.095696</option><option value="2022-01-17 15:21:39.093681">2022-01-17 15:21:39.093681</option><option value="2022-01-25 15:21:39.134960">2022-01-25 15:21:39.134960</option><option value="2022-01-25 15:21:39.183598">2022-01-25 15:21:39.183598</option><option value="2022-01-31 15:21:39.185215">2022-01-31 15:21:39.185215</option><option value="2022-02-04 15:21:39.096739">2022-02-04 15:21:39.096739</option><option value="2022-02-04 15:21:39.148733">2022-02-04 15:21:39.148733</option><option value="2022-02-05 15:21:39.123711">2022-02-05 15:21:39.123711</option><option value="2022-02-05 15:21:39.237118">2022-02-05 15:21:39.237118</option><option value="2022-02-08 15:21:39.129190">2022-02-08 15:21:39.129190</option><option value="2022-02-08 15:21:39.252145">2022-02-08 15:21:39.252145</option><option value="2022-02-09 15:21:39.155231">2022-02-09 15:21:39.155231</option><option value="2022-02-10 15:21:39.205850">2022-02-10 15:21:39.205850</option><option value="2022-02-11 15:21:39.144722">2022-02-11 15:21:39.144722</option><option value="2022-02-15 15:21:39.179186">2022-02-15 15:21:39.179186</option><option value="2022-02-16 15:21:39.134960">2022-02-16 15:21:39.134960</option><option value="2022-02-16 15:21:39.264504">2022-02-16 15:21:39.264504</option><option value="2022-02-17 15:21:39.155231">2022-02-17 15:21:39.155231</option><option value="2022-02-18 15:21:39.237118">2022-02-18 15:21:39.237118</option><option value="2022-02-20 15:21:39.094752">2022-02-20 15:21:39.094752</option><option value="2022-02-22 15:21:39.276901">2022-02-22 15:21:39.276901</option><option value="2022-02-26 15:21:39.134960">2022-02-26 15:21:39.134960</option><option value="2022-02-26 15:21:39.170099">2022-02-26 15:21:39.170099</option><option value="2022-03-05 15:21:39.164044">2022-03-05 15:21:39.164044</option><option value="2022-03-06 15:21:39.078837">2022-03-06 15:21:39.078837</option><option value="2022-03-06 15:21:39.102694">2022-03-06 15:21:39.102694</option><option value="2022-03-08 15:21:39.155231">2022-03-08 15:21:39.155231</option><option value="2022-03-08 15:21:39.237118">2022-03-08 15:21:39.237118</option><option value="2022-03-11 15:21:39.082499">2022-03-11 15:21:39.082499</option><option value="2022-03-15 15:21:39.223901">2022-03-15 15:21:39.223901</option><option value="2022-03-16 15:21:39.169102">2022-03-16 15:21:39.169102</option><option value="2022-03-16 15:21:39.172097">2022-03-16 15:21:39.172097</option><option value="2022-03-18 15:21:39.134960">2022-03-18 15:21:39.134960</option><option value="2022-03-18 15:21:39.237118">2022-03-18 15:21:39.237118</option><option value="2022-03-19 15:21:39.149731">2022-03-19 15:21:39.149731</option><option value="2022-03-21 15:21:39.172097">2022-03-21 15:21:39.172097</option><option value="2022-03-24 15:21:39.134960">2022-03-24 15:21:39.134960</option><option value="2022-03-27 15:21:39.107553">2022-03-27 15:21:39.107553</option><option value="2022-03-27 15:21:39.155231">2022-03-27 15:21:39.155231</option><option value="2022-03-28 15:21:39.134960">2022-03-28 15:21:39.134960</option><option value="2022-03-29 15:21:39.271453">2022-03-29 15:21:39.271453</option><option value="2022-03-31 15:21:39.149731">2022-03-31 15:21:39.149731</option><option value="2022-03-31 15:21:39.237118">2022-03-31 15:21:39.237118</option><option value="2022-03-31 15:21:39.268507">2022-03-31 15:21:39.268507</option><option value="2022-04-02 15:21:39.134960">2022-04-02 15:21:39.134960</option><option value="2022-04-03 15:21:39.094752">2022-04-03 15:21:39.094752</option><option value="2022-04-03 15:21:39.207847">2022-04-03 15:21:39.207847</option><option value="2022-04-05 15:21:39.134960">2022-04-05 15:21:39.134960</option><option value="2022-04-05 15:21:39.171102">2022-04-05 15:21:39.171102</option><option value="2022-04-08 15:21:39.170099">2022-04-08 15:21:39.170099</option><option value="2022-04-08 15:21:39.246098">2022-04-08 15:21:39.246098</option><option value="2022-04-10 15:21:39.134960">2022-04-10 15:21:39.134960</option><option value="2022-04-10 15:21:39.276901">2022-04-10 15:21:39.276901</option><option value="2022-04-11 15:21:39.171102">2022-04-11 15:21:39.171102</option><option value="2022-04-11 15:21:39.192212">2022-04-11 15:21:39.192212</option><option value="2022-04-11 15:21:39.261856">2022-04-11 15:21:39.261856</option><option value="2022-04-12 15:21:39.171102">2022-04-12 15:21:39.171102</option><option value="2022-04-12 15:21:39.251142">2022-04-12 15:21:39.251142</option><option value="2022-04-13 15:21:39.134960">2022-04-13 15:21:39.134960</option><option value="2022-04-16 15:21:39.134960">2022-04-16 15:21:39.134960</option><option value="2022-04-18 15:21:39.134960">2022-04-18 15:21:39.134960</option><option value="2022-04-26 15:21:39.126661">2022-04-26 15:21:39.126661</option><option value="2022-04-28 15:21:39.254678">2022-04-28 15:21:39.254678</option><option value="2022-04-30 15:21:39.155231">2022-04-30 15:21:39.155231</option><option value="2022-05-03 15:21:39.106582">2022-05-03 15:21:39.106582</option><option value="2022-05-06 15:21:39.121169">2022-05-06 15:21:39.121169</option><option value="2022-05-08 15:21:39.155231">2022-05-08 15:21:39.155231</option><option value="2022-05-10 15:21:39.143708">2022-05-10 15:21:39.143708</option><option value="2022-05-11 15:21:39.134960">2022-05-11 15:21:39.134960</option><option value="2022-05-16 15:21:39.205850">2022-05-16 15:21:39.205850</option><option value="2022-05-17 15:21:39.285112">2022-05-17 15:21:39.285112</option><option value="2022-05-18 15:21:39.264504">2022-05-18 15:21:39.264504</option><option value="2022-05-20 15:21:39.285112">2022-05-20 15:21:39.285112</option><option value="2022-05-22 15:21:39.209847">2022-05-22 15:21:39.209847</option><option value="2022-05-29 15:21:39.134960">2022-05-29 15:21:39.134960</option><option value="2022-05-29 15:21:39.228521">2022-05-29 15:21:39.228521</option><option value="2022-05-31 15:21:39.180553">2022-05-31 15:21:39.180553</option><option value="2022-06-01 15:21:39.188220">2022-06-01 15:21:39.188220</option><option value="2022-06-02 15:21:39.122134">2022-06-02 15:21:39.122134</option><option value="2022-06-02 15:21:39.155231">2022-06-02 15:21:39.155231</option><option value="2022-06-03 15:21:39.134960">2022-06-03 15:21:39.134960</option><option value="2022-06-06 15:21:39.180553">2022-06-06 15:21:39.180553</option><option value="2022-06-08 15:21:39.282785">2022-06-08 15:21:39.282785</option><option value="2022-06-14 15:21:39.259788">2022-06-14 15:21:39.259788</option><option value="2022-06-19 15:21:39.108562">2022-06-19 15:21:39.108562</option><option value="2022-06-22 15:21:39.263607">2022-06-22 15:21:39.263607</option><option value="2022-06-24 15:21:39.281787">2022-06-24 15:21:39.281787</option><option value="2022-06-25 15:21:39.172097">2022-06-25 15:21:39.172097</option><option value="2022-06-26 15:21:39.248098">2022-06-26 15:21:39.248098</option><option value="2022-06-27 15:21:39.223901">2022-06-27 15:21:39.223901</option><option value="2022-06-27 15:21:39.226954">2022-06-27 15:21:39.226954</option><option value="2022-06-28 15:21:39.155231">2022-06-28 15:21:39.155231</option><option value="2022-06-28 15:21:39.207847">2022-06-28 15:21:39.207847</option><option value="2022-06-29 15:21:39.134960">2022-06-29 15:21:39.134960</option><option value="2022-06-29 15:21:39.166062">2022-06-29 15:21:39.166062</option><option value="2022-06-30 15:21:39.149731">2022-06-30 15:21:39.149731</option><option value="2022-06-30 15:21:39.218388">2022-06-30 15:21:39.218388</option><option value="2022-07-01 15:21:39.279729">2022-07-01 15:21:39.279729</option><option value="2022-07-03 15:21:39.116179">2022-07-03 15:21:39.116179</option><option value="2022-07-05 15:21:39.093681">2022-07-05 15:21:39.093681</option><option value="2022-07-06 15:21:39.155231">2022-07-06 15:21:39.155231</option><option value="2022-07-09 15:21:39.155231">2022-07-09 15:21:39.155231</option><option value="2022-07-09 15:21:39.226954">2022-07-09 15:21:39.226954</option><option value="2022-07-10 15:21:39.223901">2022-07-10 15:21:39.223901</option><option value="2022-07-12 15:21:39.290098">2022-07-12 15:21:39.290098</option><option value="2022-07-16 15:21:39.107553">2022-07-16 15:21:39.107553</option><option value="2022-07-18 15:21:39.134960">2022-07-18 15:21:39.134960</option><option value="2022-07-18 15:21:39.285112">2022-07-18 15:21:39.285112</option><option value="2022-07-21 15:21:39.106582">2022-07-21 15:21:39.106582</option><option value="2022-07-25 15:21:39.237118">2022-07-25 15:21:39.237118</option><option value="2022-08-08 15:21:39.186212">2022-08-08 15:21:39.186212</option><option value="2022-08-09 15:21:39.155231">2022-08-09 15:21:39.155231</option><option value="2022-08-14 15:21:39.106582">2022-08-14 15:21:39.106582</option><option value="2022-08-14 15:21:39.176717">2022-08-14 15:21:39.176717</option><option value="2022-08-17 15:21:39.134960">2022-08-17 15:21:39.134960</option><option value="2022-08-17 15:21:39.167099">2022-08-17 15:21:39.167099</option><option value="2022-08-18 15:21:39.215386">2022-08-18 15:21:39.215386</option><option value="2022-08-19 15:21:39.155231">2022-08-19 15:21:39.155231</option><option value="2022-08-24 15:21:39.119168">2022-08-24 15:21:39.119168</option><option value="2022-08-26 15:21:39.146733">2022-08-26 15:21:39.146733</option><option value="2022-08-26 15:21:39.237118">2022-08-26 15:21:39.237118</option><option value="2022-08-28 15:21:39.167099">2022-08-28 15:21:39.167099</option><option value="2022-08-29 15:21:39.134960">2022-08-29 15:21:39.134960</option><option value="2022-08-29 15:21:39.176717">2022-08-29 15:21:39.176717</option><option value="2022-08-29 15:21:39.221386">2022-08-29 15:21:39.221386</option><option value="2022-08-29 15:21:39.237118">2022-08-29 15:21:39.237118</option><option value="2022-09-02 15:21:39.103944">2022-09-02 15:21:39.103944</option><option value="2022-09-04 15:21:39.193945">2022-09-04 15:21:39.193945</option><option value="2022-09-05 15:21:39.155231">2022-09-05 15:21:39.155231</option><option value="2022-09-08 15:21:39.228521">2022-09-08 15:21:39.228521</option><option value="2022-09-11 15:21:39.082499">2022-09-11 15:21:39.082499</option><option value="2022-09-11 15:21:39.155231">2022-09-11 15:21:39.155231</option><option value="2022-09-11 15:21:39.248098">2022-09-11 15:21:39.248098</option><option value="2022-09-13 15:21:39.132191">2022-09-13 15:21:39.132191</option><option value="2022-09-14 15:21:39.235012">2022-09-14 15:21:39.235012</option><option value="2022-09-14 15:21:39.263607">2022-09-14 15:21:39.263607</option><option value="2022-09-15 15:21:39.237118">2022-09-15 15:21:39.237118</option><option value="2022-09-16 15:21:39.237118">2022-09-16 15:21:39.237118</option><option value="2022-09-17 15:21:39.128286">2022-09-17 15:21:39.128286</option><option value="2022-09-17 15:21:39.266452">2022-09-17 15:21:39.266452</option><option value="2022-09-19 15:21:39.155231">2022-09-19 15:21:39.155231</option><option value="2022-09-20 15:21:39.155231">2022-09-20 15:21:39.155231</option><option value="2022-09-23 15:21:39.097737">2022-09-23 15:21:39.097737</option><option value="2022-09-23 15:21:39.225916">2022-09-23 15:21:39.225916</option><option value="2022-09-27 15:21:39.110557">2022-09-27 15:21:39.110557</option><option value="2022-09-27 15:21:39.222387">2022-09-27 15:21:39.222387</option><option value="2022-09-27 15:21:39.226954">2022-09-27 15:21:39.226954</option><option value="2022-09-28 15:21:39.134960">2022-09-28 15:21:39.134960</option><option value="2022-10-02 15:21:39.092127">2022-10-02 15:21:39.092127</option><option value="2022-10-04 15:21:39.237118">2022-10-04 15:21:39.237118</option><option value="2022-10-12 15:21:39.165120">2022-10-12 15:21:39.165120</option><option value="2022-10-13 15:21:39.155231">2022-10-13 15:21:39.155231</option><option value="2022-10-14 15:21:39.132191">2022-10-14 15:21:39.132191</option><option value="2022-10-15 15:21:39.269494">2022-10-15 15:21:39.269494</option><option value="2022-10-19 15:21:39.260856">2022-10-19 15:21:39.260856</option><option value="2022-10-22 15:21:39.152732">2022-10-22 15:21:39.152732</option><option value="2022-10-22 15:21:39.225916">2022-10-22 15:21:39.225916</option><option value="2022-10-23 15:21:39.279729">2022-10-23 15:21:39.279729</option><option value="2022-10-24 15:21:39.086123">2022-10-24 15:21:39.086123</option><option value="2022-10-26 15:21:39.188220">2022-10-26 15:21:39.188220</option><option value="2022-10-26 15:21:39.194829">2022-10-26 15:21:39.194829</option><option value="2022-10-28 15:21:39.274993">2022-10-28 15:21:39.274993</option><option value="2022-10-28 15:21:39.280784">2022-10-28 15:21:39.280784</option><option value="2022-11-01 15:21:39.082499">2022-11-01 15:21:39.082499</option><option value="2022-11-02 15:21:39.133866">2022-11-02 15:21:39.133866</option><option value="2022-11-02 15:21:39.174719">2022-11-02 15:21:39.174719</option><option value="2022-11-03 15:21:39.274993">2022-11-03 15:21:39.274993</option><option value="2022-11-04 15:21:39.133866">2022-11-04 15:21:39.133866</option><option value="2022-11-06 15:21:39.097737">2022-11-06 15:21:39.097737</option><option value="2022-11-07 15:21:39.192212">2022-11-07 15:21:39.192212</option><option value="2022-11-08 15:21:39.108562">2022-11-08 15:21:39.108562</option><option value="2022-11-10 15:21:39.248098">2022-11-10 15:21:39.248098</option><option value="2022-11-12 15:21:39.228521">2022-11-12 15:21:39.228521</option><option value="2022-11-13 15:21:39.209847">2022-11-13 15:21:39.209847</option><option value="2022-11-14 15:21:39.155231">2022-11-14 15:21:39.155231</option><option value="2022-11-15 15:21:39.134960">2022-11-15 15:21:39.134960</option><option value="2022-11-18 15:21:39.237118">2022-11-18 15:21:39.237118</option><option value="2022-11-20 15:21:39.207847">2022-11-20 15:21:39.207847</option><option value="2022-11-22 15:21:39.088124">2022-11-22 15:21:39.088124</option><option value="2022-11-29 15:21:39.143708">2022-11-29 15:21:39.143708</option><option value="2022-12-01 15:21:39.155231">2022-12-01 15:21:39.155231</option><option value="2022-12-03 15:21:39.155231">2022-12-03 15:21:39.155231</option><option value="2022-12-09 15:21:39.237118">2022-12-09 15:21:39.237118</option><option value="2022-12-12 15:21:39.134960">2022-12-12 15:21:39.134960</option><option value="2022-12-12 15:21:39.185215">2022-12-12 15:21:39.185215</option><option value="2022-12-14 15:21:39.237118">2022-12-14 15:21:39.237118</option><option value="2022-12-15 15:21:39.114118">2022-12-15 15:21:39.114118</option><option value="2022-12-15 15:21:39.134960">2022-12-15 15:21:39.134960</option><option value="2022-12-15 15:21:39.252145">2022-12-15 15:21:39.252145</option><option value="2022-12-19 15:21:39.267454">2022-12-19 15:21:39.267454</option><option value="2022-12-28 15:21:39.155231">2022-12-28 15:21:39.155231</option><option value="2022-12-28 15:21:39.259788">2022-12-28 15:21:39.259788</option><option value="2022-12-30 15:21:39.087123">2022-12-30 15:21:39.087123</option><option value="2022-12-31 15:21:39.281787">2022-12-31 15:21:39.281787</option><option value="2023-01-01 15:21:39.175719">2023-01-01 15:21:39.175719</option><option value="2023-01-01 15:21:39.176717">2023-01-01 15:21:39.176717</option><option value="2023-01-03 15:21:39.221386">2023-01-03 15:21:39.221386</option><option value="2023-01-05 15:21:39.114118">2023-01-05 15:21:39.114118</option><option value="2023-01-06 15:21:39.173834">2023-01-06 15:21:39.173834</option><option value="2023-01-07 15:21:39.251142">2023-01-07 15:21:39.251142</option><option value="2023-01-10 15:21:39.171102">2023-01-10 15:21:39.171102</option><option value="2023-01-15 15:21:39.081504">2023-01-15 15:21:39.081504</option><option value="2023-01-16 15:21:39.237118">2023-01-16 15:21:39.237118</option><option value="2023-01-17 15:21:39.237118">2023-01-17 15:21:39.237118</option><option value="2023-01-18 15:21:39.207847">2023-01-18 15:21:39.207847</option><option value="2023-01-19 15:21:39.155231">2023-01-19 15:21:39.155231</option><option value="2023-01-20 15:21:39.155231">2023-01-20 15:21:39.155231</option><option value="2023-01-22 15:21:39.155231">2023-01-22 15:21:39.155231</option><option value="2023-01-28 15:21:39.180553">2023-01-28 15:21:39.180553</option><option value="2023-01-28 15:21:39.204790">2023-01-28 15:21:39.204790</option><option value="2023-01-29 15:21:39.189223">2023-01-29 15:21:39.189223</option><option value="2023-01-31 15:21:39.155231">2023-01-31 15:21:39.155231</option><option value="2023-01-31 15:21:39.174719">2023-01-31 15:21:39.174719</option><option value="2023-02-02 15:21:39.255696">2023-02-02 15:21:39.255696</option><option value="2023-02-04 15:21:39.237118">2023-02-04 15:21:39.237118</option><option value="2023-02-05 15:21:39.134960">2023-02-05 15:21:39.134960</option><option value="2023-02-08 15:21:39.252145">2023-02-08 15:21:39.252145</option><option value="2023-02-09 15:21:39.134960">2023-02-09 15:21:39.134960</option><option value="2023-02-11 15:21:39.111551">2023-02-11 15:21:39.111551</option><option value="2023-02-11 15:21:39.236064">2023-02-11 15:21:39.236064</option><option value="2023-02-14 15:21:39.093681">2023-02-14 15:21:39.093681</option><option value="2023-02-18 15:21:39.098696">2023-02-18 15:21:39.098696</option><option value="2023-02-19 15:21:39.134960">2023-02-19 15:21:39.134960</option><option value="2023-02-19 15:21:39.253660">2023-02-19 15:21:39.253660</option><option value="2023-02-25 15:21:39.166062">2023-02-25 15:21:39.166062</option><option value="2023-02-26 15:21:39.257696">2023-02-26 15:21:39.257696</option><option value="2023-02-27 15:21:39.146733">2023-02-27 15:21:39.146733</option><option value="2023-02-27 15:21:39.181605">2023-02-27 15:21:39.181605</option><option value="2023-02-27 15:21:39.237118">2023-02-27 15:21:39.237118</option><option value="2023-03-02 15:21:39.222387">2023-03-02 15:21:39.222387</option><option value="2023-03-03 15:21:39.134960">2023-03-03 15:21:39.134960</option><option value="2023-03-03 15:21:39.182597">2023-03-03 15:21:39.182597</option><option value="2023-03-04 15:21:39.261856">2023-03-04 15:21:39.261856</option><option value="2023-03-07 15:21:39.134960">2023-03-07 15:21:39.134960</option><option value="2023-03-07 15:21:39.155231">2023-03-07 15:21:39.155231</option><option value="2023-03-08 15:21:39.114118">2023-03-08 15:21:39.114118</option><option value="2023-03-09 15:21:39.207847">2023-03-09 15:21:39.207847</option><option value="2023-03-10 15:21:39.164044">2023-03-10 15:21:39.164044</option><option value="2023-03-10 15:21:39.231531">2023-03-10 15:21:39.231531</option><option value="2023-03-11 15:21:39.265513">2023-03-11 15:21:39.265513</option><option value="2023-03-13 15:21:39.134960">2023-03-13 15:21:39.134960</option><option value="2023-03-16 15:21:39.155231">2023-03-16 15:21:39.155231</option><option value="2023-03-16 15:21:39.182597">2023-03-16 15:21:39.182597</option><option value="2023-03-16 15:21:39.253660">2023-03-16 15:21:39.253660</option><option value="2023-03-18 15:21:39.274993">2023-03-18 15:21:39.274993</option><option value="2023-03-22 15:21:39.173834">2023-03-22 15:21:39.173834</option><option value="2023-03-23 15:21:39.283783">2023-03-23 15:21:39.283783</option><option value="2023-03-24 15:21:39.155231">2023-03-24 15:21:39.155231</option><option value="2023-03-30 15:21:39.084065">2023-03-30 15:21:39.084065</option><option value="2023-04-01 15:21:39.264504">2023-04-01 15:21:39.264504</option><option value="2023-04-04 15:21:39.095696">2023-04-04 15:21:39.095696</option><option value="2023-04-05 15:21:39.122134">2023-04-05 15:21:39.122134</option><option value="2023-04-06 15:21:39.110557">2023-04-06 15:21:39.110557</option><option value="2023-04-06 15:21:39.270454">2023-04-06 15:21:39.270454</option><option value="2023-04-10 15:21:39.134960">2023-04-10 15:21:39.134960</option><option value="2023-04-13 15:21:39.125660">2023-04-13 15:21:39.125660</option><option value="2023-04-13 15:21:39.134960">2023-04-13 15:21:39.134960</option><option value="2023-04-15 15:21:39.251142">2023-04-15 15:21:39.251142</option><option value="2023-04-16 15:21:39.151732">2023-04-16 15:21:39.151732</option><option value="2023-04-16 15:21:39.152732">2023-04-16 15:21:39.152732</option><option value="2023-04-19 15:21:39.166062">2023-04-19 15:21:39.166062</option><option value="2023-04-20 15:21:39.170099">2023-04-20 15:21:39.170099</option><option value="2023-04-20 15:21:39.288099">2023-04-20 15:21:39.288099</option><option value="2023-04-23 15:21:39.207847">2023-04-23 15:21:39.207847</option><option value="2023-04-26 15:21:39.222387">2023-04-26 15:21:39.222387</option><option value="2023-04-28 15:21:39.259788">2023-04-28 15:21:39.259788</option><option value="2023-04-29 15:21:39.112553">2023-04-29 15:21:39.112553</option><option value="2023-04-29 15:21:39.268507">2023-04-29 15:21:39.268507</option><option value="2023-04-30 15:21:39.143708">2023-04-30 15:21:39.143708</option><option value="2023-05-02 15:21:39.091080">2023-05-02 15:21:39.091080</option><option value="2023-05-03 15:21:39.222387">2023-05-03 15:21:39.222387</option><option value="2023-05-07 15:21:39.259788">2023-05-07 15:21:39.259788</option><option value="2023-05-12 15:21:39.280784">2023-05-12 15:21:39.280784</option><option value="2023-05-13 15:21:39.107553">2023-05-13 15:21:39.107553</option><option value="2023-05-14 15:21:39.283783">2023-05-14 15:21:39.283783</option><option value="2023-05-16 15:21:39.191219">2023-05-16 15:21:39.191219</option><option value="2023-05-16 15:21:39.231531">2023-05-16 15:21:39.231531</option><option value="2023-05-17 15:21:39.194829">2023-05-17 15:21:39.194829</option><option value="2023-05-17 15:21:39.237118">2023-05-17 15:21:39.237118</option><option value="2023-05-21 15:21:39.281787">2023-05-21 15:21:39.281787</option><option value="2023-05-24 15:21:39.237118">2023-05-24 15:21:39.237118</option><option value="2023-05-26 15:21:39.236064">2023-05-26 15:21:39.236064</option><option value="2023-05-27 15:21:39.148733">2023-05-27 15:21:39.148733</option><option value="2023-05-30 15:21:39.122134">2023-05-30 15:21:39.122134</option><option value="2023-06-01 15:21:39.175719">2023-06-01 15:21:39.175719</option><option value="2023-06-01 15:21:39.231531">2023-06-01 15:21:39.231531</option><option value="2023-06-02 15:21:39.134960">2023-06-02 15:21:39.134960</option><option value="2023-06-02 15:21:39.235012">2023-06-02 15:21:39.235012</option><option value="2023-06-04 15:21:39.134960">2023-06-04 15:21:39.134960</option><option value="2023-06-05 15:21:39.134960">2023-06-05 15:21:39.134960</option><option value="2023-06-08 15:21:39.146733">2023-06-08 15:21:39.146733</option><option value="2023-06-10 15:21:39.198406">2023-06-10 15:21:39.198406</option><option value="2023-06-11 15:21:39.223901">2023-06-11 15:21:39.223901</option><option value="2023-06-13 15:21:39.090124">2023-06-13 15:21:39.090124</option><option value="2023-06-14 15:21:39.134960">2023-06-14 15:21:39.134960</option><option value="2023-06-18 15:21:39.134960">2023-06-18 15:21:39.134960</option><option value="2023-06-19 15:21:39.155231">2023-06-19 15:21:39.155231</option><option value="2023-06-20 15:21:39.094752">2023-06-20 15:21:39.094752</option><option value="2023-06-20 15:21:39.170099">2023-06-20 15:21:39.170099</option><option value="2023-06-25 15:21:39.168099">2023-06-25 15:21:39.168099</option><option value="2023-06-25 15:21:39.181605">2023-06-25 15:21:39.181605</option><option value="2023-06-26 15:21:39.167099">2023-06-26 15:21:39.167099</option><option value="2023-07-01 15:21:39.154008">2023-07-01 15:21:39.154008</option><option value="2023-07-05 15:21:39.134960">2023-07-05 15:21:39.134960</option><option value="2023-07-05 15:21:39.155231">2023-07-05 15:21:39.155231</option><option value="2023-07-06 15:21:39.249100">2023-07-06 15:21:39.249100</option><option value="2023-07-10 15:21:39.146733">2023-07-10 15:21:39.146733</option><option value="2023-07-12 15:21:39.098696">2023-07-12 15:21:39.098696</option><option value="2023-07-12 15:21:39.107553">2023-07-12 15:21:39.107553</option><option value="2023-07-16 15:21:39.097737">2023-07-16 15:21:39.097737</option><option value="2023-07-16 15:21:39.145732">2023-07-16 15:21:39.145732</option><option value="2023-07-16 15:21:39.261856">2023-07-16 15:21:39.261856</option><option value="2023-07-19 15:21:39.272456">2023-07-19 15:21:39.272456</option><option value="2023-07-23 15:21:39.134960">2023-07-23 15:21:39.134960</option><option value="2023-07-25 15:21:39.186212">2023-07-25 15:21:39.186212</option><option value="2023-07-28 15:21:39.096739">2023-07-28 15:21:39.096739</option><option value="2023-07-29 15:21:39.134960">2023-07-29 15:21:39.134960</option><option value="2023-07-31 15:21:39.155231">2023-07-31 15:21:39.155231</option><option value="2023-07-31 15:21:39.256696">2023-07-31 15:21:39.256696</option><option value="2023-08-01 15:21:39.285112">2023-08-01 15:21:39.285112</option><option value="2023-08-05 15:21:39.089116">2023-08-05 15:21:39.089116</option><option value="2023-08-06 15:21:39.261856">2023-08-06 15:21:39.261856</option><option value="2023-08-09 15:21:39.134960">2023-08-09 15:21:39.134960</option><option value="2023-08-09 15:21:39.225916">2023-08-09 15:21:39.225916</option><option value="2023-08-09 15:21:39.226954">2023-08-09 15:21:39.226954</option><option value="2023-08-11 15:21:39.233998">2023-08-11 15:21:39.233998</option><option value="2023-08-12 15:21:39.148733">2023-08-12 15:21:39.148733</option><option value="2023-08-12 15:21:39.192212">2023-08-12 15:21:39.192212</option><option value="2023-08-15 15:21:39.134960">2023-08-15 15:21:39.134960</option><option value="2023-08-24 15:21:39.098696">2023-08-24 15:21:39.098696</option><option value="2023-08-26 15:21:39.201446">2023-08-26 15:21:39.201446</option><option value="2023-08-27 15:21:39.169102">2023-08-27 15:21:39.169102</option><option value="2023-08-27 15:21:39.237118">2023-08-27 15:21:39.237118</option><option value="2023-08-28 15:21:39.119168">2023-08-28 15:21:39.119168</option><option value="2023-08-29 15:21:39.081504">2023-08-29 15:21:39.081504</option><option value="2023-08-31 15:21:39.134960">2023-08-31 15:21:39.134960</option><option value="2023-08-31 15:21:39.171102">2023-08-31 15:21:39.171102</option><option value="2023-09-02 15:21:39.180553">2023-09-02 15:21:39.180553</option><option value="2023-09-03 15:21:39.282785">2023-09-03 15:21:39.282785</option><option value="2023-09-17 15:21:39.231531">2023-09-17 15:21:39.231531</option><option value="2023-09-20 15:21:39.235012">2023-09-20 15:21:39.235012</option><option value="2023-09-21 15:21:39.273973">2023-09-21 15:21:39.273973</option><option value="2023-09-23 15:21:39.256696">2023-09-23 15:21:39.256696</option><option value="2023-09-24 15:21:39.105504">2023-09-24 15:21:39.105504</option><option value="2023-09-26 15:21:39.187211">2023-09-26 15:21:39.187211</option><option value="2023-09-27 15:21:39.112553">2023-09-27 15:21:39.112553</option><option value="2023-09-30 15:21:39.106582">2023-09-30 15:21:39.106582</option><option value="2023-10-01 15:21:39.282785">2023-10-01 15:21:39.282785</option><option value="2023-10-03 15:21:39.253660">2023-10-03 15:21:39.253660</option><option value="2023-10-04 15:21:39.259788">2023-10-04 15:21:39.259788</option><option value="2023-10-06 15:21:39.134960">2023-10-06 15:21:39.134960</option><option value="2023-10-08 15:21:39.223901">2023-10-08 15:21:39.223901</option><option value="2023-10-09 15:21:39.208842">2023-10-09 15:21:39.208842</option><option value="2023-10-10 15:21:39.200452">2023-10-10 15:21:39.200452</option><option value="2023-10-13 15:21:39.207847">2023-10-13 15:21:39.207847</option><option value="2023-10-13 15:21:39.213373">2023-10-13 15:21:39.213373</option><option value="2023-10-21 15:21:39.111551">2023-10-21 15:21:39.111551</option><option value="2023-10-21 15:21:39.189223">2023-10-21 15:21:39.189223</option><option value="2023-10-22 15:21:39.155231">2023-10-22 15:21:39.155231</option><option value="2023-10-24 15:21:39.237118">2023-10-24 15:21:39.237118</option><option value="2023-10-31 15:21:39.237118">2023-10-31 15:21:39.237118</option><option value="2023-10-31 15:21:39.251142">2023-10-31 15:21:39.251142</option><option value="2023-11-01 15:21:39.125660">2023-11-01 15:21:39.125660</option><option value="2023-11-01 15:21:39.155231">2023-11-01 15:21:39.155231</option><option value="2023-11-11 15:21:39.202448">2023-11-11 15:21:39.202448</option><option value="2023-11-14 15:21:39.112553">2023-11-14 15:21:39.112553</option><option value="2023-11-14 15:21:39.194829">2023-11-14 15:21:39.194829</option><option value="2023-11-17 15:21:39.168099">2023-11-17 15:21:39.168099</option><option value="2023-11-18 15:21:39.122134">2023-11-18 15:21:39.122134</option><option value="2023-11-20 15:21:39.112553">2023-11-20 15:21:39.112553</option><option value="2023-11-21 15:21:39.252145">2023-11-21 15:21:39.252145</option><option value="2023-11-21 15:21:39.289099">2023-11-21 15:21:39.289099</option><option value="2023-11-22 15:21:39.134960">2023-11-22 15:21:39.134960</option><option value="2023-11-22 15:21:39.155231">2023-11-22 15:21:39.155231</option><option value="2023-11-23 15:21:39.181605">2023-11-23 15:21:39.181605</option><option value="2023-11-24 15:21:39.230483">2023-11-24 15:21:39.230483</option><option value="2023-11-25 15:21:39.134960">2023-11-25 15:21:39.134960</option><option value="2023-11-27 15:21:39.244069">2023-11-27 15:21:39.244069</option><option value="2023-11-27 15:21:39.245086">2023-11-27 15:21:39.245086</option><option value="2023-12-01 15:21:39.208842">2023-12-01 15:21:39.208842</option><option value="2023-12-03 15:21:39.274993">2023-12-03 15:21:39.274993</option><option value="2023-12-05 15:21:39.125660">2023-12-05 15:21:39.125660</option><option value="2023-12-05 15:21:39.237118">2023-12-05 15:21:39.237118</option><option value="2023-12-10 15:21:39.206847">2023-12-10 15:21:39.206847</option><option value="2023-12-11 15:21:39.207847">2023-12-11 15:21:39.207847</option><option value="2023-12-11 15:21:39.211806">2023-12-11 15:21:39.211806</option><option value="2023-12-15 15:21:39.085129">2023-12-15 15:21:39.085129</option><option value="2023-12-17 15:21:39.126661">2023-12-17 15:21:39.126661</option><option value="2023-12-17 15:21:39.251142">2023-12-17 15:21:39.251142</option><option value="2023-12-17 15:21:39.254678">2023-12-17 15:21:39.254678</option><option value="2023-12-18 15:21:39.219432">2023-12-18 15:21:39.219432</option><option value="2023-12-22 15:21:39.204790">2023-12-22 15:21:39.204790</option><option value="2023-12-23 15:21:39.134960">2023-12-23 15:21:39.134960</option><option value="2023-12-25 15:21:39.155231">2023-12-25 15:21:39.155231</option><option value="2023-12-25 15:21:39.175719">2023-12-25 15:21:39.175719</option><option value="2023-12-27 15:21:39.209847">2023-12-27 15:21:39.209847</option><option value="2023-12-28 15:21:39.155231">2023-12-28 15:21:39.155231</option><option value="2023-12-28 15:21:39.194829">2023-12-28 15:21:39.194829</option><option value="2023-12-29 15:21:39.095696">2023-12-29 15:21:39.095696</option><option value="2023-12-29 15:21:39.134960">2023-12-29 15:21:39.134960</option><option value="2023-12-30 15:21:39.134960">2023-12-30 15:21:39.134960</option><option value="2023-12-30 15:21:39.286113">2023-12-30 15:21:39.286113</option><option value="2024-01-03 15:21:39.084065">2024-01-03 15:21:39.084065</option><option value="2024-01-04 15:21:39.097737">2024-01-04 15:21:39.097737</option><option value="2024-01-04 15:21:39.155231">2024-01-04 15:21:39.155231</option><option value="2024-01-06 15:21:39.265513">2024-01-06 15:21:39.265513</option><option value="2024-01-11 15:21:39.122134">2024-01-11 15:21:39.122134</option><option value="2024-01-12 15:21:39.245086">2024-01-12 15:21:39.245086</option><option value="2024-01-13 15:21:39.081504">2024-01-13 15:21:39.081504</option><option value="2024-01-13 15:21:39.108562">2024-01-13 15:21:39.108562</option><option value="2024-01-15 15:21:39.282785">2024-01-15 15:21:39.282785</option><option value="2024-01-17 15:21:39.102694">2024-01-17 15:21:39.102694</option><option value="2024-01-17 15:21:39.235012">2024-01-17 15:21:39.235012</option><option value="2024-01-19 15:21:39.256696">2024-01-19 15:21:39.256696</option><option value="2024-01-23 15:21:39.093681">2024-01-23 15:21:39.093681</option><option value="2024-01-24 15:21:39.134960">2024-01-24 15:21:39.134960</option><option value="2024-01-26 15:21:39.125660">2024-01-26 15:21:39.125660</option><option value="2024-01-28 15:21:39.226954">2024-01-28 15:21:39.226954</option><option value="2024-01-30 15:21:39.172097">2024-01-30 15:21:39.172097</option><option value="2024-01-31 15:21:39.155231">2024-01-31 15:21:39.155231</option><option value="2024-02-02 15:21:39.106582">2024-02-02 15:21:39.106582</option><option value="2024-02-04 15:21:39.119168">2024-02-04 15:21:39.119168</option><option value="2024-02-05 15:21:39.237118">2024-02-05 15:21:39.237118</option><option value="2024-02-07 15:21:39.134960">2024-02-07 15:21:39.134960</option><option value="2024-02-09 15:21:39.257696">2024-02-09 15:21:39.257696</option><option value="2024-02-13 15:21:39.265513">2024-02-13 15:21:39.265513</option><option value="2024-02-15 15:21:39.130190">2024-02-15 15:21:39.130190</option><option value="2024-02-15 15:21:39.194829">2024-02-15 15:21:39.194829</option><option value="2024-02-18 15:21:39.245086">2024-02-18 15:21:39.245086</option><option value="2024-02-23 15:21:39.226954">2024-02-23 15:21:39.226954</option><option value="2024-02-26 15:21:39.144722">2024-02-26 15:21:39.144722</option><option value="2024-02-26 15:21:39.233998">2024-02-26 15:21:39.233998</option><option value="2024-02-27 15:21:39.205850">2024-02-27 15:21:39.205850</option><option value="2024-03-05 15:21:39.144722">2024-03-05 15:21:39.144722</option><option value="2024-03-05 15:21:39.215386">2024-03-05 15:21:39.215386</option><option value="2024-03-11 15:21:39.247098">2024-03-11 15:21:39.247098</option><option value="2024-03-14 15:21:39.231531">2024-03-14 15:21:39.231531</option><option value="2024-03-18 15:21:39.273973">2024-03-18 15:21:39.273973</option><option value="2024-03-21 15:21:39.134960">2024-03-21 15:21:39.134960</option><option value="2024-03-21 15:21:39.155231">2024-03-21 15:21:39.155231</option><option value="2024-03-22 15:21:39.091080">2024-03-22 15:21:39.091080</option><option value="2024-03-22 15:21:39.155231">2024-03-22 15:21:39.155231</option><option value="2024-03-23 15:21:39.196387">2024-03-23 15:21:39.196387</option><option value="2024-03-23 15:21:39.252145">2024-03-23 15:21:39.252145</option><option value="2024-03-24 15:21:39.265513">2024-03-24 15:21:39.265513</option><option value="2024-03-26 15:21:39.125660">2024-03-26 15:21:39.125660</option><option value="2024-03-26 15:21:39.134960">2024-03-26 15:21:39.134960</option><option value="2024-03-29 15:21:39.093681">2024-03-29 15:21:39.093681</option><option value="2024-03-29 15:21:39.243673">2024-03-29 15:21:39.243673</option><option value="2024-03-29 15:21:39.258696">2024-03-29 15:21:39.258696</option><option value="2024-03-29 15:21:39.259648">2024-03-29 15:21:39.259648</option><option value="2024-03-31 15:21:39.155231">2024-03-31 15:21:39.155231</option><option value="2024-03-31 15:21:39.244069">2024-03-31 15:21:39.244069</option><option value="2024-04-01 15:21:39.204790">2024-04-01 15:21:39.204790</option><option value="2024-04-06 15:21:39.288099">2024-04-06 15:21:39.288099</option><option value="2024-04-07 15:21:39.269494">2024-04-07 15:21:39.269494</option><option value="2024-04-08 15:21:39.185215">2024-04-08 15:21:39.185215</option><option value="2024-04-08 15:21:39.263607">2024-04-08 15:21:39.263607</option><option value="2024-04-09 15:21:39.134960">2024-04-09 15:21:39.134960</option><option value="2024-04-09 15:21:39.151732">2024-04-09 15:21:39.151732</option><option value="2024-04-12 15:21:39.191219">2024-04-12 15:21:39.191219</option><option value="2024-04-12 15:21:39.225916">2024-04-12 15:21:39.225916</option><option value="2024-04-19 15:21:39.253660">2024-04-19 15:21:39.253660</option><option value="2024-04-20 15:21:39.093681">2024-04-20 15:21:39.093681</option><option value="2024-04-21 15:21:39.271453">2024-04-21 15:21:39.271453</option><option value="2024-04-24 15:21:39.128286">2024-04-24 15:21:39.128286</option><option value="2024-04-26 15:21:39.226954">2024-04-26 15:21:39.226954</option><option value="2024-04-28 15:21:39.288099">2024-04-28 15:21:39.288099</option><option value="2024-04-30 15:21:39.093681">2024-04-30 15:21:39.093681</option><option value="2024-05-02 15:21:39.134960">2024-05-02 15:21:39.134960</option><option value="2024-05-05 15:21:39.107553">2024-05-05 15:21:39.107553</option><option value="2024-05-05 15:21:39.134960">2024-05-05 15:21:39.134960</option><option value="2024-05-07 15:21:39.268507">2024-05-07 15:21:39.268507</option><option value="2024-05-08 15:21:39.155231">2024-05-08 15:21:39.155231</option><option value="2024-05-08 15:21:39.254678">2024-05-08 15:21:39.254678</option><option value="2024-05-10 15:21:39.273973">2024-05-10 15:21:39.273973</option><option value="2024-05-12 15:21:39.183598">2024-05-12 15:21:39.183598</option><option value="2024-05-12 15:21:39.192212">2024-05-12 15:21:39.192212</option><option value="2024-05-15 15:21:39.165120">2024-05-15 15:21:39.165120</option><option value="2024-05-19 15:21:39.176717">2024-05-19 15:21:39.176717</option><option value="2024-05-20 15:21:39.143708">2024-05-20 15:21:39.143708</option><option value="2024-05-20 15:21:39.237118">2024-05-20 15:21:39.237118</option><option value="2024-05-21 15:21:39.168099">2024-05-21 15:21:39.168099</option><option value="2024-05-23 15:21:39.155231">2024-05-23 15:21:39.155231</option><option value="2024-05-23 15:21:39.271453">2024-05-23 15:21:39.271453</option><option value="2024-05-23 15:21:39.276901">2024-05-23 15:21:39.276901</option><option value="2024-05-24 15:21:39.237118">2024-05-24 15:21:39.237118</option><option value="2024-05-26 15:21:39.191219">2024-05-26 15:21:39.191219</option><option value="2024-05-28 15:21:39.155231">2024-05-28 15:21:39.155231</option><option value="2024-05-30 15:21:39.085129">2024-05-30 15:21:39.085129</option><option value="2024-05-31 15:21:39.248098">2024-05-31 15:21:39.248098</option><option value="2024-06-02 15:21:39.108562">2024-06-02 15:21:39.108562</option><option value="2024-06-02 15:21:39.182597">2024-06-02 15:21:39.182597</option><option value="2024-06-03 15:21:39.189223">2024-06-03 15:21:39.189223</option><option value="2024-06-04 15:21:39.119168">2024-06-04 15:21:39.119168</option><option value="2024-06-07 15:21:39.134960">2024-06-07 15:21:39.134960</option><option value="2024-06-07 15:21:39.228521">2024-06-07 15:21:39.228521</option><option value="2024-06-08 15:21:39.167099">2024-06-08 15:21:39.167099</option><option value="2024-06-10 15:21:39.165120">2024-06-10 15:21:39.165120</option><option value="2024-06-13 15:21:39.223901">2024-06-13 15:21:39.223901</option><option value="2024-06-14 15:21:39.155231">2024-06-14 15:21:39.155231</option><option value="2024-06-14 15:21:39.210805">2024-06-14 15:21:39.210805</option><option value="2024-06-16 15:21:39.148733">2024-06-16 15:21:39.148733</option><option value="2024-06-18 15:21:39.121169">2024-06-18 15:21:39.121169</option><option value="2024-06-19 15:21:39.107553">2024-06-19 15:21:39.107553</option><option value="2024-06-20 15:21:39.155231">2024-06-20 15:21:39.155231</option><option value="2024-06-20 15:21:39.261856">2024-06-20 15:21:39.261856</option><option value="2024-06-23 15:21:39.081504">2024-06-23 15:21:39.081504</option><option value="2024-06-23 15:21:39.143708">2024-06-23 15:21:39.143708</option><option value="2024-06-23 15:21:39.287115">2024-06-23 15:21:39.287115</option><option value="2024-06-24 15:21:39.274993">2024-06-24 15:21:39.274993</option><option value="2024-06-27 15:21:39.105504">2024-06-27 15:21:39.105504</option><option value="2024-06-30 15:21:39.120168">2024-06-30 15:21:39.120168</option><option value="2024-07-02 15:21:39.269494">2024-07-02 15:21:39.269494</option><option value="2024-07-03 15:21:39.098696">2024-07-03 15:21:39.098696</option><option value="2024-07-06 15:21:39.094752">2024-07-06 15:21:39.094752</option><option value="2024-07-08 15:21:39.287115">2024-07-08 15:21:39.287115</option><option value="2024-07-11 15:21:39.274993">2024-07-11 15:21:39.274993</option><option value="2024-07-12 15:21:39.253660">2024-07-12 15:21:39.253660</option><option value="2024-07-14 15:21:39.154008">2024-07-14 15:21:39.154008</option><option value="2024-07-18 15:21:39.129190">2024-07-18 15:21:39.129190</option><option value="2024-07-19 15:21:39.094752">2024-07-19 15:21:39.094752</option><option value="2024-07-21 15:21:39.088124">2024-07-21 15:21:39.088124</option><option value="2024-07-21 15:21:39.095696">2024-07-21 15:21:39.095696</option><option value="2024-08-02 15:21:39.173834">2024-08-02 15:21:39.173834</option><option value="2024-08-03 15:21:39.128175">2024-08-03 15:21:39.128175</option><option value="2024-08-04 15:21:39.111551">2024-08-04 15:21:39.111551</option><option value="2024-08-08 15:21:39.129190">2024-08-08 15:21:39.129190</option><option value="2024-08-09 15:21:39.222387">2024-08-09 15:21:39.222387</option><option value="2024-08-09 15:21:39.223901">2024-08-09 15:21:39.223901</option><option value="2024-08-11 15:21:39.185215">2024-08-11 15:21:39.185215</option><option value="2024-08-11 15:21:39.283783">2024-08-11 15:21:39.283783</option><option value="2024-08-13 15:21:39.237118">2024-08-13 15:21:39.237118</option></select>
+          </div>
+          <div>
+            <label class="inp-lbl">Customer Feedback</label>
+            <select name="Customer Feedback" class="inp" required><option value="" disabled selected>Select…</option><option value="Average">Average</option><option value="Good">Good</option><option value="Poor">Poor</option></select>
+          </div>
+          <div>
+            <label class="inp-lbl">Smoking Status</label>
+            <select name="Smoking Status" class="inp" required><option value="" disabled selected>Select…</option><option value="No">No</option><option value="Yes">Yes</option></select>
+          </div>
+          <div>
+            <label class="inp-lbl">Exercise Frequency</label>
+            <select name="Exercise Frequency" class="inp" required><option value="" disabled selected>Select…</option><option value="Daily">Daily</option><option value="Monthly">Monthly</option><option value="Rarely">Rarely</option><option value="Weekly">Weekly</option></select>
+          </div>
+          <div>
+            <label class="inp-lbl">Property Type</label>
+            <select name="Property Type" class="inp" required><option value="" disabled selected>Select…</option><option value="Apartment">Apartment</option><option value="Condo">Condo</option><option value="House">House</option></select>
+          </div>
+            </div>
+            <button type="submit" class="btn-predict" id="pBtn">
+              <span id="btnTxt">Predict</span>
+            </button>
+          </form>
+
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)">
+            <div style="color:rgba(255,255,255,.25);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Batch Predict via CSV</div>
+            <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.2);border-radius:10px;cursor:pointer">
+              <span style="font-size:1.1rem">&#128196;</span>
+              <span id="uploadTxt" style="color:rgba(255,255,255,.5);font-size:.83rem">Drop CSV or click to upload</span>
+              <input type="file" accept=".csv" id="csvFile" style="display:none">
+            </label>
+            <div id="batchResult" style="display:none;margin-top:8px;max-height:140px;overflow-y:auto;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:10px;font-size:.78rem;color:rgba(255,255,255,.65)"></div>
+          </div>
+
+          <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">
+            <div style="color:rgba(255,255,255,.25);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">About this model</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+              <div class="mini-stat">
+                <div style="color:rgba(255,255,255,.35);font-size:.7rem;margin-bottom:4px">Algorithm</div>
+                <div style="color:#fff;font-weight:600;font-size:.82rem">—</div>
+              </div>
+              <div class="mini-stat">
+                <div style="color:rgba(255,255,255,.35);font-size:.7rem;margin-bottom:4px" id="metricLabel">R² / MAE</div>
+                <div style="color:#f87171;font-weight:700;font-size:.82rem" id="metricValue">—</div>
+              </div>
+              <div class="mini-stat">
+                <div style="color:rgba(255,255,255,.35);font-size:.7rem;margin-bottom:4px" id="metricLabel2">R² / MAE2</div>
+                <div style="color:#fff;font-weight:600;font-size:.82rem" id="metricValue2">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Results Panel -->
+        <div class="glass" style="border-radius:20px;padding:28px;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+            <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#2979ff,#1565c0);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.3)">◎</div>
+            <div>
+              <div style="color:#fff;font-weight:700;font-size:1.05rem">Prediction Result</div>
+              <div style="color:rgba(255,255,255,.38);font-size:.82rem">Output from your trained model</div>
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <div id="emptyState" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 0">
+            <div style="width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;font-size:1.7rem;margin-bottom:14px">🤖</div>
+            <div style="color:rgba(255,255,255,.38);font-weight:500">No prediction yet</div>
+            <div style="color:rgba(255,255,255,.22);font-size:.85rem;margin-top:6px">Fill in the form and hit Predict</div>
+          </div>
+
+          <!-- Result state -->
+          <div id="resultState" style="display:none;flex:1;flex-direction:column">
+
+            <div style="text-align:center;margin-bottom:24px">
+              <div class="badge" style="margin-bottom:12px">
+                <span>●</span> <span id="resLabel">Result</span>
+              </div>
+              <div id="resVal" style="font-size:2.6rem;font-weight:900;color:#fff;margin-bottom:6px;letter-spacing:-0.5px;line-height:1.1">&#8212;</div>
+              <div id="resConf" style="color:rgba(255,255,255,.45);font-size:.9rem"></div>
+            </div>
+
+            <div id="benchmarkBadge" style="display:none;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:99px;margin-bottom:12px"></div>
+            <div id="ciSec" style="display:none;margin-bottom:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px">
+              <div style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Confidence Interval <span style="font-weight:400;opacity:.6">(±1σ &middot; ~68%)</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:6px"><span id="ciLower">—</span><span style="color:rgba(255,255,255,.3)">range</span><span id="ciUpper">—</span></div>
+              <div style="height:8px;background:rgba(255,255,255,.06);border-radius:99px;position:relative">
+                <div style="position:absolute;height:100%;width:100%;border-radius:99px;background:linear-gradient(90deg,#1565c059,#1565c099)"></div>
+                <div id="ciDot" style="position:absolute;width:12px;height:12px;border-radius:50%;background:#1565c0;top:50%;transform:translate(-50%,-50%);box-shadow:0 0 8px #1565c066"></div>
+              </div>
+            </div>
+            <div id="probSec" style="display:none;margin-bottom:20px">
+              <div style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">Class Probabilities</div>
+              <div id="probBars"></div>
+            </div>
+
+            <div id="fiSec" style="display:none;flex-direction:column;flex:1;margin-bottom:16px">
+              <div style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Key Factors</div>
+              <div id="fiBars"></div>
+            </div>
+
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;margin-top:12px">
+              <div style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Input Summary</div>
+              <div id="inputSummary" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:.84rem"></div>
+            </div>
+
+          </div>
+
+          <!-- Error state -->
+          <div id="errState" style="display:none">
+            <div class="err-box" id="errMsg"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Comparison table -->
+      <div id="histSection" style="display:none;margin-top:24px">
+        <div class="glass" style="border-radius:16px;padding:20px 24px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div><span style="color:#fff;font-weight:700;font-size:.95rem">Prediction History</span>
+            <span id="histCount" style="color:rgba(255,255,255,.3);font-size:.8rem;margin-left:8px"></span></div>
+            <button onclick="clearHistory()" style="padding:5px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:rgba(255,255,255,.55);font-size:.78rem;cursor:pointer">Clear</button>
+          </div>
+          <div style="overflow-x:auto"><table class="hist-table"><thead id="histHead"></thead><tbody id="histBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div style="text-align:center;margin-top:40px">
+        <p style="color:rgba(255,255,255,.18);font-size:.82rem">
+          Powered by
+          <span style="color:rgba(255,255,255,.35);font-weight:600">FastAPI</span> &middot;
+          <span style="color:rgba(255,255,255,.35);font-weight:600">scikit-learn</span> &middot;
+          Built with <span style="color:rgba(255,255,255,.35);font-weight:600">&#10022; AI</span>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  var IS_CLASS = false;
+  var CLASSES  = [];
+
+  var pForm       = document.getElementById('pForm');
+  var pBtn        = document.getElementById('pBtn');
+  var btnTxt      = document.getElementById('btnTxt');
+  var srvDot      = document.getElementById('srvDot');
+  var srvTxt      = document.getElementById('srvTxt');
+  var emptyState  = document.getElementById('emptyState');
+  var resultState = document.getElementById('resultState');
+  var errState    = document.getElementById('errState');
+  var resVal      = document.getElementById('resVal');
+  var resConf     = document.getElementById('resConf');
+  var resLabel    = document.getElementById('resLabel');
+  var probSec     = document.getElementById('probSec');
+  var probBars    = document.getElementById('probBars');
+  var errMsg      = document.getElementById('errMsg');
+  var inputSum    = document.getElementById('inputSummary');
+  var fiSec       = document.getElementById('fiSec');
+  var fiBars      = document.getElementById('fiBars');
+  var csvFile     = document.getElementById('csvFile');
+  var batchResult = document.getElementById('batchResult');
+  var uploadTxt   = document.getElementById('uploadTxt');
+
+  // Populate About strip from /metrics
+  fetch('/metrics').then(function(r){return r.json();}).then(function(m){
+    if(!m||!m.task) return;
+    var ml=document.getElementById('metricLabel'),mv=document.getElementById('metricValue');
+    var ml2=document.getElementById('metricLabel2'),mv2=document.getElementById('metricValue2');
+    if(m.task==='regression'){
+      if(m.r2!==undefined&&m.r2>=0.7){ml.textContent='R²';mv.textContent=m.r2.toFixed(3);mv.style.color=m.r2>=0.9?'#4ade80':'#facc15';}
+      else if(m.mae!==undefined){ml.textContent='MAE';mv.textContent='±'+Math.round(m.mae);mv.style.color='#facc15';}
+      if(ml2&&m.rmse!==undefined){ml2.textContent='Est. Error';mv2.textContent='±'+Math.round(m.rmse);}
+    }
+  }).catch(function(){});
+  // ── CSV upload → /predict/upload ───────────────────────────────────────────
+  if (csvFile) {
+    csvFile.addEventListener('change', function() {
+      var f = csvFile.files[0]; if (!f) return;
+      uploadTxt.textContent = f.name;
+      var fd = new FormData(); fd.append('file', f);
+      batchResult.style.display = 'block';
+      batchResult.textContent = 'Uploading…';
+      fetch('/predict/upload', {method:'POST', body:fd})
+        .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+        .then(function(d){
+          var preview = d.predictions.slice(0,20).join(', ') + (d.count>20 ? '…' : '');
+          batchResult.innerHTML = '<b>'+d.count+' predictions:</b><br>'+preview;
+        })
+        .catch(function(e){ batchResult.textContent = 'Upload failed: '+e.message; });
+    });
+  }
+
+  // ── Server health check with cold-start retry ──────────────────────────────
+  var _healthTimer = null;
+  var _serverReady = false;
+
+  function setServerState(state, msg) {
+    srvDot.className = 'srv-dot ' + state;
+    srvTxt.textContent = msg;
+    _serverReady = (state === 'online');
+    pBtn.disabled = !_serverReady;
+    pBtn.title = _serverReady ? '' : 'Waiting for server…';
+  }
+
+  function checkServer() {
+    setServerState('checking', 'Checking server…');
+    fetch('/health')
+      .then(function(r) {
+        if (r.ok) {
+          return r.json().then(function(d) {
+            if (d && d.status === 'ok') {
+              setServerState('online', 'Server online');
+              if (_healthTimer) { clearInterval(_healthTimer); _healthTimer = null; }
+            } else {
+              setServerState('offline', 'Server warming up… retrying');
+            }
+          });
+        } else {
+          setServerState('offline', 'Server error (HTTP ' + r.status + ') — retrying');
+        }
+      })
+      .catch(function() {
+        setServerState('offline', 'Server offline — run: uvicorn app:app --reload');
+        if (_healthTimer) { clearInterval(_healthTimer); _healthTimer = null; }
+      });
+  }
+  checkServer();
+  _healthTimer = setInterval(checkServer, 5000);
+
+  // ── Form submit ────────────────────────────────────────────────────────────
+  pForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!_serverReady) {
+      showError('Server is not ready yet.\nPlease wait until the status shows Server online.');
+      return;
+    }
+
+    var payload = {};
+    var summary = [];
+    var _hasInvalid = false;
+    pForm.querySelectorAll('input.inp, select.inp').forEach(function(el) {
+      var v = el.value.trim();
+      if (v !== '') {
+        payload[el.name] = (el.type === 'number' && !isNaN(v)) ? parseFloat(v) : v;
+        var lbl = el.previousElementSibling ? el.previousElementSibling.textContent.trim() : el.name;
+        summary.push([lbl, v]);
+      }
+      if (el.dataset.invalid === '1') _hasInvalid = true;
+    });
+    if (_hasInvalid) {
+      showError('Please fix the highlighted fields before predicting.');
+      return;
+    }
+    if (Object.keys(payload).length === 0) {
+      showError('Please fill in at least one field before predicting.');
+      return;
+    }
+
+    pBtn.disabled = true;
+    btnTxt.innerHTML = '<span class="spinner"></span>Predicting…';
+    emptyState.style.display  = 'none';
+    resultState.style.display = 'none';
+    errState.style.display    = 'none';
+
+    fetch('/predict', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) {
+      if (!r.ok) return r.text().then(function(t) { throw new Error('API ' + r.status + ': ' + t); });
+      return r.json();
+    })
+    .then(function(data) {
+      showResult(data, summary);
+    })
+    .catch(function(err) {
+      var msg = err.message || String(err);
+      if (msg.indexOf('Failed to fetch') !== -1 || msg.indexOf('NetworkError') !== -1
+          || msg.indexOf('ERR_CONNECTION_REFUSED') !== -1 || err instanceof TypeError) {
+        msg = '⚠ Cannot reach the API server.\nThe server may have gone to sleep — please wait a moment.';
+        setServerState('offline', 'Server offline — retrying…');
+        if (!_healthTimer) _healthTimer = setInterval(checkServer, 5000);
+      }
+      showError(msg);
+    })
+    .finally(function() {
+      pBtn.disabled = !_serverReady;
+      btnTxt.textContent = 'Predict Again';
+    });
+  });
+
+  function showResult(data, summary) {
+    function _fmt(s){return s.replace(/[-_]/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});}
+    resVal.textContent = IS_CLASS ? _fmt(String(data.prediction)) : Number(data.prediction).toFixed(2);
+
+    if (IS_CLASS && data.probabilities) {
+      var probs  = Array.isArray(data.probabilities) ? data.probabilities : Object.values(data.probabilities);
+      var labels = CLASSES.length ? CLASSES : probs.map(function(_,i){ return 'Class ' + i; });
+      var maxP   = Math.max.apply(null, probs);
+
+      resLabel.textContent = 'Classified';
+      resConf.textContent  = 'Confidence: ' + (maxP * 100).toFixed(1) + '%';
+
+      probBars.innerHTML = '';
+      var pairs = labels.map(function(l,i){ return {l:l, p:probs[i]||0}; })
+                        .sort(function(a,b){ return b.p - a.p; });
+      pairs.forEach(function(item) {
+        var pct   = (item.p * 100).toFixed(1);
+        var isTop = item.p === maxP;
+        var d = document.createElement('div');
+        d.style.marginBottom = '12px';
+        d.innerHTML =
+          '<div style="display:flex;justify-content:space-between;margin-bottom:5px">' +
+            '<span style="font-size:.85rem;font-weight:' + (isTop ? '600' : '400') +
+            ';color:rgba(255,255,255,' + (isTop ? '.9' : '.45') + ')">' + _fmt(item.l) + '</span>' +
+            '<span style="font-size:.85rem;font-weight:700;color:rgba(255,255,255,' + (isTop ? '.95' : '.35') + ')">' + pct + '%</span>' +
+          '</div>' +
+          '<div class="conf-track"><div class="conf-fill" data-p="' + pct + '" style="width:0"></div></div>';
+        probBars.appendChild(d);
+      });
+      probSec.style.display = 'block';
+      setTimeout(function() {
+        document.querySelectorAll('.conf-fill').forEach(function(b) {
+          b.style.width = b.dataset.p + '%';
+        });
+      }, 60);
+    } else {
+      resLabel.textContent = 'Estimated Value';
+      probSec.style.display = 'none';
+      if (data.ci_lower !== undefined && data.ci_upper !== undefined) {
+        var lo = data.ci_lower, hi = data.ci_upper, pred = data.prediction;
+        document.getElementById('ciLower').textContent = lo < 0 ? '0' : lo.toFixed(2);
+        document.getElementById('ciUpper').textContent = hi.toFixed(2);
+        resConf.textContent = 'Range: ' + (lo < 0 ? '0' : lo.toFixed(0)) + ' – ' + hi.toFixed(0) + '  (±1σ)';
+        var leftPct = hi > lo ? ((pred-lo)/(hi-lo)*0.8) : 0.5;
+        document.getElementById('ciDot').style.left = Math.max(5,Math.min(95,leftPct*100)).toFixed(1)+'%';
+        document.getElementById('ciSec').style.display = 'block';
+      } else { resConf.textContent = ''; }
+      var m = data.metrics || {};
+      if (m.target_mean !== undefined) {
+        var sig = (data.prediction - m.target_mean) / (m.target_std || 1);
+        var bb = document.getElementById('benchmarkBadge');
+        if (bb) {
+          var bl=sig<-0.5?'Below Average':sig>0.5?'Above Average':'Near Average';
+          var bc=sig<-0.5?'#4ade80':sig>0.5?'#f87171':'#facc15';
+          bb.textContent=bl; bb.style.color=bc; bb.style.background='rgba(255,255,255,.06)';
+          bb.style.border='1px solid '+bc+'44'; bb.style.display='inline-block';
+        }
+      }
+    }
+
+    inputSum.innerHTML = '';
+    summary.forEach(function(pair) {
+      var d = document.createElement('div');
+      d.style.cssText = 'display:flex;justify-content:space-between';
+      d.innerHTML =
+        '<span style="color:rgba(255,255,255,.35)">' + pair[0] + '</span>' +
+        '<span style="color:#fff;font-weight:500">' + pair[1] + '</span>';
+      inputSum.appendChild(d);
+    });
+
+    if (data.feature_importance && data.feature_importance.length) {
+      var fiMax = data.feature_importance[0].importance || 1;
+      fiBars.innerHTML = data.feature_importance.map(function(fi){
+        var pct = Math.round(fi.importance / fiMax * 100);
+        var opa = (0.35 + (fi.importance / fiMax) * 0.65).toFixed(2);
+        var lbl = fi.feature.replace(/x\d+_/g,'').replace(/[_\-]/g,' ').trim();
+        return '<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:3px"><span style="color:rgba(255,255,255,.6)">'+lbl+'</span><span style="color:rgba(255,255,255,.4)">'+pct+'%</span></div>'+
+               '<div style="height:5px;background:rgba(255,255,255,.08);border-radius:99px"><div style="height:5px;border-radius:99px;background:linear-gradient(90deg,#1565c0,#2979ff);width:'+pct+'%"></div></div></div>';
+      }).join('');
+      fiSec.style.display = 'flex';
+      fiSec.style.flexDirection = 'column';
+      fiSec.style.flex = '1';
+    } else { fiSec.style.display = 'none'; }
+
+    resultState.style.display = 'flex';
+    resultState.classList.remove('fade-up');
+    void resultState.offsetWidth;
+    resultState.classList.add('fade-up');
+    errState.style.display = 'none';
+    addToHistory(data);
+  }
+
+  function showError(msg) {
+    errMsg.textContent = msg;
+    errState.style.display    = 'block';
+    resultState.style.display = 'none';
+    emptyState.style.display  = 'none';
+  }
+
+  // ── Sliders ────────────────────────────────────────────────
+  var _debounceTimer = null;
+  function debouncedPredict(ms) {
+    clearTimeout(_debounceTimer);
+    _debounceTimer = setTimeout(function() {
+      if (_serverReady) pForm.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
+    }, ms || 400);
+  }
+  function initSliders(ranges) {
+    document.querySelectorAll('.inp[type="number"]').forEach(function(inp) {
+      var fname = inp.name, key = fname.replace(/\s+/g,'_');
+      var r = (ranges && ranges[fname]) || {min:0, max:100, step:1};
+      var lbl = inp.parentElement.querySelector('.inp-lbl');
+      if (lbl && !lbl.querySelector('.sv')) {
+        var sv = document.createElement('span'); sv.className='sv'; sv.id='sv_'+key;
+        sv.style.cssText='float:right;color:#1565c0;font-size:.73rem;font-weight:600';
+        lbl.appendChild(sv);
+      }
+      if (!document.getElementById('sl_'+key)) {
+        var sl = document.createElement('input'); sl.type='range'; sl.className='slider';
+        sl.id='sl_'+key; sl.min=r.min; sl.max=r.max; sl.step=r.step;
+        inp.parentElement.appendChild(sl);
+        var sv2 = document.getElementById('sv_'+key);
+        inp.addEventListener('input', function() {
+          var v=parseFloat(this.value);
+          if (!isNaN(v)&&v>=0) { if(v>parseFloat(sl.max))sl.max=Math.ceil(v*2); sl.value=v; if(sv2)sv2.textContent=v.toLocaleString(); }
+          else { if(sv2)sv2.textContent=''; } debouncedPredict(420);
+        });
+        sl.addEventListener('input', function() {
+          inp.value=this.value; if(sv2)sv2.textContent=Number(this.value).toLocaleString(); debouncedPredict(300);
+        });
+      }
+    });
+  }
+  var _rangeData = {};
+  fetch('/ranges').then(function(r){return r.json();})
+    .then(function(rng){ _rangeData = rng || {}; initSliders(_rangeData); initValidation(); })
+    .catch(function(){ initSliders(null); initValidation(); });
+
+  function initValidation() {
+    document.querySelectorAll('.inp[type="number"]').forEach(function(inp) {
+      var errEl = document.createElement('div');
+      errEl.style.cssText = 'font-size:.72rem;color:#f87171;margin-top:3px;display:none';
+      inp.parentElement.appendChild(errEl);
+      inp.addEventListener('blur', function() {
+        var r = _rangeData[inp.name]; if (!r) return;
+        var v = parseFloat(inp.value);
+        if (inp.value !== '' && (isNaN(v) || v < r.min || v > r.max)) {
+          inp.style.borderColor = '#f87171';
+          errEl.textContent = 'Expected ' + r.min + ' – ' + r.max;
+          errEl.style.display = 'block';
+          inp.dataset.invalid = '1';
+        } else {
+          inp.style.borderColor = '';
+          errEl.style.display = 'none';
+          inp.dataset.invalid = '0';
+        }
+      });
+      inp.addEventListener('focus', function() {
+        inp.style.borderColor = ''; errEl.style.display = 'none'; inp.dataset.invalid = '0';
+      });
+    });
+  }
+
+  // ── Prediction history ─────────────────────────────────────
+  var _history=[], _histKeyFields=['Age', 'Annual Income', 'Number of Dependents'];
+  function addToHistory(data) {
+    var e={inputs:{},prediction:data.prediction,ci_lower:data.ci_lower,ci_upper:data.ci_upper,metrics:data.metrics};
+    document.querySelectorAll('#pForm .inp').forEach(function(inp){if(inp.value!=='')e.inputs[inp.name]=inp.value;});
+    _history.push(e); renderHistory();
+  }
+  function renderHistory() {
+    if(_history.length<2) return;
+    var hs=document.getElementById('histSection'); hs.style.display='block';
+    document.getElementById('histCount').textContent='('+_history.length+' runs)';
+    var cols=['#'].concat(_histKeyFields).concat(IS_CLASS?['Prediction','Confidence']:['Prediction','Range','vs Avg']);
+    document.getElementById('histHead').innerHTML='<tr>'+cols.map(function(c){return'<th>'+c+'</th>';}).join('')+ '</tr>';
+    document.getElementById('histBody').innerHTML=_history.map(function(e,i){
+      var prev=i>0?_history[i-1]:null;
+      var cells=_histKeyFields.map(function(col){
+        var v=e.inputs[col]!==undefined?e.inputs[col]:'—';
+        var changed=prev&&prev.inputs[col]!==e.inputs[col];
+        return '<td style="'+( changed?'color:#fff;font-weight:600':'')+'">'+v+'</td>';
+      });
+      var predCell=IS_CLASS?'<td class="pred-col">'+String(e.prediction)+'</td>'+
+        '<td>'+( typeof e.probabilities!=='undefined'?'—':'—')+'</td>' :
+        '<td class="pred-col">'+Number(e.prediction).toFixed(2)+'</td>'+
+        '<td>'+( e.ci_lower!==undefined?(Math.max(0,e.ci_lower).toFixed(0)+' – '+e.ci_upper.toFixed(0)):'—')+'</td>'+
+        (function(){var m=e.metrics||{};if(m.target_mean===undefined)return'<td>—</td>';
+          var s=(e.prediction-m.target_mean)/(m.target_std||1);
+          var l=s<-0.5?'↓ Below':s>0.5?'↑ Above':'→ Avg';
+          var c=s<-0.5?'#4ade80':s>0.5?'#f87171':'#facc15';
+          return'<td style="color:'+c+';font-weight:600">'+l+'</td>';})();
+      return '<tr><td class="run-col">'+( i+1)+'</td>'+cells.join('')+ predCell+'</tr>';
+    }).join('');
+  }
+  function clearHistory(){ _history=[]; document.getElementById('histSection').style.display='none'; }
+</script>
+</body>
+</html>

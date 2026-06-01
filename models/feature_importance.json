@@ -1,0 +1,62 @@
+[
+  {
+    "feature": "cat__Location_Urban",
+    "importance": 1.0
+  },
+  {
+    "feature": "cat__Policy Type_Premium",
+    "importance": 0.9774
+  },
+  {
+    "feature": "cat__Gender_Female",
+    "importance": 0.746
+  },
+  {
+    "feature": "num__Insurance Duration",
+    "importance": 0.6546
+  },
+  {
+    "feature": "num__Credit Score",
+    "importance": 0.5867
+  },
+  {
+    "feature": "num__Number of Dependents",
+    "importance": 0.4987
+  },
+  {
+    "feature": "cat__Policy Start Date_2023-05-26 15:21:39.236064",
+    "importance": 0.4708
+  },
+  {
+    "feature": "cat__Policy Start Date_2019-09-30 15:21:39.266452",
+    "importance": 0.4681
+  },
+  {
+    "feature": "num__Annual Income",
+    "importance": 0.4623
+  },
+  {
+    "feature": "num__Age",
+    "importance": 0.4374
+  },
+  {
+    "feature": "num__Health Score",
+    "importance": 0.4225
+  },
+  {
+    "feature": "cat__Education Level_Master's",
+    "importance": 0.4178
+  },
+  {
+    "feature": "cat__Policy Start Date_2019-09-27 15:21:39.219432",
+    "importance": 0.4058
+  },
+  {
+    "feature": "cat__Policy Start Date_2020-05-11 15:21:39.237118",
+    "importance": 0.4023
+  },
+  {
+    "feature": "cat__Policy Start Date_2023-07-05 15:21:39.155231",
+    "importance": 0.3343
+  }
+]
