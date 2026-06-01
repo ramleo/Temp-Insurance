@@ -58,6 +58,9 @@
     }
     select.inp { cursor: pointer; }
     select.inp option { background: #1e2a3a; color: #fff; }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="number"] { -moz-appearance: textfield; }
     .inp-lbl {
       display: block; font-size: .68rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: .09em;
@@ -674,7 +677,7 @@
       }
       if (!document.getElementById('sl_'+key)) {
         var sl = document.createElement('input'); sl.type='range'; sl.className='slider';
-        sl.id='sl_'+key; sl.min=r.min; sl.max=r.max; sl.step=r.step;
+        sl.id='sl_'+key; sl.min=r.min; sl.max=r.max; sl.step=r.step; sl.tabIndex=-1;
         inp.parentElement.appendChild(sl);
         var sv2 = document.getElementById('sv_'+key);
         inp.addEventListener('input', function() {
