@@ -662,13 +662,6 @@
   }
 
   // ── Sliders ────────────────────────────────────────────────
-  var _debounceTimer = null;
-  function debouncedPredict(ms) {
-    clearTimeout(_debounceTimer);
-    _debounceTimer = setTimeout(function() {
-      if (_serverReady) pForm.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
-    }, ms || 400);
-  }
   function initSliders(ranges) {
     document.querySelectorAll('.inp[type="number"]').forEach(function(inp) {
       var fname = inp.name, key = fname.replace(/\s+/g,'_');
@@ -687,10 +680,10 @@
         inp.addEventListener('input', function() {
           var v=parseFloat(this.value);
           if (!isNaN(v)&&v>=0) { if(v>parseFloat(sl.max))sl.max=Math.ceil(v*2); sl.value=v; if(sv2)sv2.textContent=v.toLocaleString(); }
-          else { if(sv2)sv2.textContent=''; } debouncedPredict(420);
+          else { if(sv2)sv2.textContent=''; }
         });
         sl.addEventListener('input', function() {
-          inp.value=this.value; if(sv2)sv2.textContent=Number(this.value).toLocaleString(); debouncedPredict(300);
+          inp.value=this.value; if(sv2)sv2.textContent=Number(this.value).toLocaleString();
         });
       }
     });
