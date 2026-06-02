@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Temp Insurance</title>
+  <title>Insurance Premium Predictor</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -92,13 +92,15 @@
     body.light #batchResult { background:rgba(0,0,0,.03) !important; border-color:rgba(0,0,0,.08) !important; color:#475569 !important; }
     body.light #uploadTxt { color:rgba(0,0,0,.45) !important; }
     body.light .badge span { color:#2979ff !important; }
+    body.light [style*='color:#fff;font-weight:700;font-size:1.05rem'] { color:#1e293b !important; }
+    body.light [style*='color:#fff;font-weight:700;font-size:.95rem'] { color:#1e293b !important; }
     /* Footer */
     body.light footer span, body.light p [style*='color:rgba(255,255,255,.35)'] { color:#94a3b8 !important; }
     body.light p [style*='color:rgba(255,255,255,.18)'] { color:#94a3b8 !important; }
 
     /* hero in light mode */
     body.light .hero {
-      background: linear-gradient(135deg, rgba(26,60,94,.7) 0%, rgba(13,33,55,.75) 100%),
+      background: linear-gradient(135deg, rgba(26,60,94,.35) 0%, rgba(13,33,55,.40) 100%),
                   url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1400&h=560&fit=crop&auto=format&q=85') center/cover no-repeat;
     }
 
@@ -131,6 +133,7 @@
       50%  { filter: hue-rotate(18deg)  brightness(1.06); }
       100% { filter: hue-rotate(-12deg) brightness(0.94); }
     }
+    body.light .bg-mesh { opacity:0; }
 
     .hero {
       background: linear-gradient(135deg,rgba(26,60,94,.65) 0%,rgba(13,33,55,.70) 100%),url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1400&h=560&fit=crop&auto=format&q=85') center/cover no-repeat;
@@ -326,7 +329,7 @@
           Insurance
         </div>
         <h1 class="hero-h1" style="font-size:2.8rem;font-weight:900;letter-spacing:-0.5px;margin-bottom:14px;text-shadow:0 2px 24px rgba(0,0,0,.55)">
-          Temp Insurance
+          Insurance Premium Predictor
         </h1>
         <p style="color:rgba(255,255,255,.75);font-size:1.05rem;max-width:480px;margin:0 auto;text-shadow:0 1px 8px rgba(0,0,0,.4)">
           AI-powered insurance risk prediction
@@ -447,7 +450,7 @@
           </div>
 
           <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">
-            <div style="color:rgba(255,255,255,.25);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">About this model</div>
+            <div style="color:rgba(255,255,255,.25);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;align-items:center">About this model<span class="tip-wrap"><span class="tip-icon">?</span><span class="tip-box">MAE = Mean Absolute Error (avg prediction error). Est. Error = RMSE (root mean squared error).</span></span></div>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
               <div class="mini-stat">
                 <div style="color:rgba(255,255,255,.35);font-size:.7rem;margin-bottom:4px">Algorithm</div>
