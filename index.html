@@ -445,6 +445,7 @@
                 <span id="btnTxt">Predict</span>
               </button>
               <button type="button" id="clearBtn" onclick="clearAllFields()" style="padding:15px 20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:12px;color:rgba(255,255,255,.6);font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">Clear</button>
+              <button type="button" onclick="fillSample()" id="fillSampleBtn" style="padding:15px 14px;background:rgba(41,121,255,.15);border:1px solid rgba(41,121,255,.35);border-radius:12px;color:#2979ff;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap">⚡ Sample</button>
             </div>
           </form>
 
@@ -932,6 +933,17 @@
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
   }
 
+
+  var SAMPLE_DATA = {"Age": 35, "Annual Income": 75000, "Number of Dependents": 2, "Health Score": 72.5, "Previous Claims": 1, "Vehicle Age": 5, "Credit Score": 680, "Insurance Duration": 8, "Gender": "Male", "Marital Status": "Married", "Education Level": "Bachelor's", "Occupation": "Employed", "Location": "Urban", "Policy Type": "Comprehensive", "Smoking Status": "No", "Exercise Frequency": "Weekly", "Property Type": "House"};
+  function fillSample() {
+    Object.keys(SAMPLE_DATA).forEach(function(name) {
+      var el = document.querySelector('#pForm [name="' + name + '"]');
+      if (!el) return;
+      el.value = SAMPLE_DATA[name];
+      el.dispatchEvent(new Event('input'));
+      el.dispatchEvent(new Event('change'));
+    });
+  }
   function clearAllFields() {
     pForm.querySelectorAll('input.inp, select.inp').forEach(function(el) {
       if (el.tagName === 'SELECT') { el.selectedIndex = 0; }
