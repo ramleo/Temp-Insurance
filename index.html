@@ -98,10 +98,17 @@
     body.light footer span, body.light p [style*='color:rgba(255,255,255,.35)'] { color:#94a3b8 !important; }
     body.light p [style*='color:rgba(255,255,255,.18)'] { color:#94a3b8 !important; }
 
-    /* hero in light mode */
+    /* hero in light mode — very light overlay, all text dark */
     body.light .hero {
-      background: linear-gradient(135deg, rgba(26,60,94,.35) 0%, rgba(13,33,55,.40) 100%),
+      background: linear-gradient(135deg, rgba(255,255,255,.62) 0%, rgba(220,235,255,.68) 100%),
                   url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1400&h=560&fit=crop&auto=format&q=85') center/cover no-repeat;
+    }
+    body.light .hero-h1 { color: #1a3a6b !important; text-shadow: none !important; }
+    body.light .hero p  { color: #334155 !important; text-shadow: none !important; }
+    body.light .hero > div > div:first-child {
+      background: rgba(26,60,94,.1) !important;
+      border-color: rgba(26,60,94,.25) !important;
+      color: #1a3a6b !important;
     }
 
     /* theme toggle button */
@@ -305,8 +312,10 @@
       box-shadow:0 4px 16px rgba(0,0,0,.5);
     }
     .tip-wrap:hover .tip-box { display:block; }
-    body.light .tip-icon { color:rgba(0,0,0,.4); border-color:rgba(0,0,0,.2); }
+    body.light .tip-icon { color:rgba(0,0,0,.6) !important; border-color:rgba(0,0,0,.35) !important; background:rgba(0,0,0,.07) !important; }
     body.light .tip-box  { background:rgba(255,255,255,.97); border-color:rgba(0,0,0,.12); color:#334155; box-shadow:0 4px 16px rgba(0,0,0,.15); }
+    body.light #clearBtn { color:#334155 !important; background:rgba(0,0,0,.04) !important; border-color:rgba(0,0,0,.15) !important; }
+    body.light button[onclick="clearHistory()"] { color:#64748b !important; background:rgba(0,0,0,.04) !important; border-color:rgba(0,0,0,.1) !important; }
 
     @media (max-width: 768px) {
       #mainGrid { grid-template-columns: 1fr !important; }
